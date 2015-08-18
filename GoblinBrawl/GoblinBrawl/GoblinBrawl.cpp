@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <stdio.h>
 #include "GoblinBrawl.h"
 
 #define MAX_LOADSTRING 100
@@ -22,6 +23,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPTSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
+#if defined(DEBUG) | defined(_DEBUG)
+	// redirects sdterr and stdout to another window
+	if( AttachConsole( ATTACH_PARENT_PROCESS )||AllocConsole() ) {
+		freopen( "CONOUT$", "w", stdout );
+		freopen( "CONOUT$", "w", stderr );
+	}
+#endif
+	
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -39,7 +48,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		return FALSE;
 	}
-
+	
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GOBLINBRAWL));
 
 	// Main message loop:
@@ -51,7 +60,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
-
 	return (int) msg.wParam;
 }
 

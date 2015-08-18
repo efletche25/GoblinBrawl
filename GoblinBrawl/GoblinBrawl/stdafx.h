@@ -4,7 +4,12 @@
 //
 
 #pragma once
-
+#if defined(DEBUG) | defined(_DEBUG)
+#define _CRT_SECURE_NO_WARNINGS
+#undef NDDEBUG
+#else
+#define NDEBUG
+#endif
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
