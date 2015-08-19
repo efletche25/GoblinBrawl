@@ -4,19 +4,20 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include "GoblinBrawl.h"
+#include "Game.h"
 
 #define MAX_LOADSTRING 100
 
 // Global Variables:
-HINSTANCE hInst;								// current instance
-TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
-TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
+//HINSTANCE hInst;								// current instance
+//TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
+//TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 
 // Forward declarations of functions included in this code module:
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+//ATOM				MyRegisterClass(HINSTANCE hInstance);
+//BOOL				InitInstance(HINSTANCE, int);
+//LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+//INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -24,7 +25,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow)
 {
 #if defined(DEBUG) | defined(_DEBUG)
-	// redirects sdterr and stdout to another window
+	// redirects sdterr and stdout to another window for debugging
 	if( AttachConsole( ATTACH_PARENT_PROCESS )||AllocConsole() ) {
 		freopen( "CONOUT$", "w", stdout );
 		freopen( "CONOUT$", "w", stderr );
@@ -35,20 +36,30 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
  	// TODO: Place code here.
-	MSG msg;
-	HACCEL hAccelTable;
+	//MSG msg;
+	//HACCEL hAccelTable;
 
 	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_GOBLINBRAWL, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
+	//LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	//LoadString(hInstance, IDC_GOBLINBRAWL, szWindowClass, MAX_LOADSTRING);
+	
+	
+	//MyRegisterClass(hInstance);
+	Game game( hInstance, 1280, 1024 );
 
 	// Perform application initialization:
+	/*
 	if (!InitInstance (hInstance, nCmdShow))
 	{
 		return FALSE;
+	}*/
+	if( !game.Init() ) {
+		return -1;
 	}
 	
+	return game.Run();
+
+	/*
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GOBLINBRAWL));
 
 	// Main message loop:
@@ -60,7 +71,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
-	return (int) msg.wParam;
+	return (int) msg.wParam;*/
 }
 
 
@@ -70,6 +81,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 //
 //  PURPOSE: Registers the window class.
 //
+/*
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
@@ -89,7 +101,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassEx(&wcex);
-}
+}*/
 
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
@@ -101,6 +113,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
+/*
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    HWND hWnd;
@@ -119,7 +132,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    return TRUE;
-}
+}*/
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -131,6 +144,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY	- post a quit message and return
 //
 //
+/*
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -164,4 +178,4 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
-}
+}*/
