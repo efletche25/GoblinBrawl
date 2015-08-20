@@ -4,6 +4,9 @@
 #include "d3dUtil.h"
 #include <assert.h>
 #include "Strsafe.h"
+#include <sstream>
+
+#define DISPLAY_FPS
 
 namespace {
 	// This is just used to forward Windows messages from a global window
@@ -19,7 +22,7 @@ LRESULT CALLBACK MainWndProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam 
 }
 
 Game::Game( HINSTANCE hInstance, int clientWidth, int clientHeight ) :
-hAppInstance(hInstance),
+hAppInstance( hInstance ),
 hMainWnd( nullptr ),
 clientWidth( clientWidth ),
 clientHeight( clientHeight ),
@@ -29,7 +32,8 @@ enable4xMSAA( false ),
 swapChain( nullptr ),
 depthStencilBuffer( nullptr ),
 renderTargetView( nullptr ),
-depthStencilView( nullptr ) {
+depthStencilView( nullptr ),
+paused( false ) {
 	ZeroMemory( &screenViewport, sizeof( D3D11_VIEWPORT ) );
 	game = this;
 }
@@ -60,7 +64,7 @@ bool Game::InitMainWindow() {
 	// Initialize global strings
 	LoadString( hAppInstance, IDS_APP_TITLE, wndClass, MAX_LOADSTRING );
 	LoadString( hAppInstance, IDC_GOBLINBRAWL, wndTitle, MAX_LOADSTRING );
-	
+
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof( WNDCLASSEX );
 
@@ -256,7 +260,7 @@ LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 int Game::Run() {
 	MSG msg = { 0 };
 
-	//mTimer.Reset();
+	timer.Reset();
 
 	while( msg.message!=WM_QUIT ) {
 		// If there are Window messages then process them.
@@ -266,15 +270,17 @@ int Game::Run() {
 		}
 		// Otherwise, do animation/game stuff.
 		else {
-			//mTimer.Tick();
+			timer.Tick();
 
-			//if( !mAppPaused ) {
-				//CalculateFrameStats();
+			if( !paused ) {
+#ifdef DISPLAY_FPS
+				CalculateFrameStats();
+#endif
 				//UpdateScene( mTimer.DeltaTime() );
 				//DrawScene();
-			//} else {
+			} else {
 				Sleep( 100 );
-			//}
+			}
 		}
 	}
 
@@ -308,4 +314,21 @@ void Game::DisplayWinError( LPTSTR lpszFunction ) {
 	LocalFree( lpMsgBuf );
 	LocalFree( lpDisplayBuf );
 	ExitProcess( dw );
+}
+
+void Game::CalculateFrameStats() {
+	static int frameCount = 0;
+	static float timeElapsed = 0.0f;
+	frameCount++;
+	// calculate frames over 1 second
+	if( timer.TotalTime()-timeElapsed>=1.0f ) {
+		float fps = (float)frameCount; // frameCount / 1
+		float mspf = 1000.f/fps; //milliseconds per frame
+		std::wostringstream outs;
+		outs.precision( 6 );
+		outs<<wndTitle<<L"     "<<L"FPS: "<<fps<<L"    Frame Time: "<<mspf<<L"ms";
+		SetWindowText( hMainWnd, outs.str().c_str() );
+		frameCount = 0;
+		timeElapsed += 1;
+	}
 }

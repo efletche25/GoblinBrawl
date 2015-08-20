@@ -1,5 +1,6 @@
 #pragma once
 #include <d3dx11.h>
+#include "GameTimer.h"
 
 #define MAX_LOADSTRING 100
 
@@ -15,6 +16,7 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 	void DisplayWinError( LPTSTR lpszFunction );
+	void CalculateFrameStats();
 	TCHAR					wndTitle[MAX_LOADSTRING];					
 	TCHAR					wndClass[MAX_LOADSTRING];	
 	HINSTANCE				hAppInstance;
@@ -30,5 +32,7 @@ private:
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
 	D3D11_VIEWPORT			screenViewport;
+	GameTimer				timer;
+	bool					paused;
 };
 
