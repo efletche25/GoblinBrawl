@@ -17,6 +17,8 @@ private:
 	bool InitDirect3D();
 	void DisplayWinError( LPTSTR lpszFunction );
 	void CalculateFrameStats();
+	void Update(float dt);
+	void Draw();
 	TCHAR					wndTitle[MAX_LOADSTRING];					
 	TCHAR					wndClass[MAX_LOADSTRING];	
 	HINSTANCE				hAppInstance;
@@ -34,5 +36,6 @@ private:
 	D3D11_VIEWPORT			screenViewport;
 	GameTimer				timer;
 	bool					paused;
+	bool					resizing;
 };
 

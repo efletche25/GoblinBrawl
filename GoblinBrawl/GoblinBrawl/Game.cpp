@@ -231,26 +231,54 @@ LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 	HDC hdc;
 
 	switch( msg ) {
-	case WM_COMMAND:
-		wmId = LOWORD( wParam );
-		wmEvent = HIWORD( wParam );
-		// Parse the menu selections:
-		switch( wmId ) {
-		case IDM_EXIT:
-			DestroyWindow( hwnd );
-			break;
-		default:
-			return DefWindowProc( hwnd, msg, wParam, lParam );
+	case WM_ACTIVATE:
+		if( LOWORD( wParam )==WA_INACTIVE ) {
+			paused = true;
+			timer.Stop();
+		} else {
+			paused = false;
+			timer.Start();
 		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint( hwnd, &ps );
-		// TODO: Add any drawing code here...
-		EndPaint( hwnd, &ps );
-		break;
+		return 0;
+	case WM_ENTERSIZEMOVE:
+		paused = true;
+		resizing = true;
+		timer.Stop();
+		return 0;
+	case WM_EXITSIZEMOVE:
+		paused = false;
+		resizing = false;
+		OnResize();
+		timer.Start();
+		return 0;
+	case WM_SIZE:
+		clientWidth = LOWORD( lParam );
+		clientHeight = HIWORD( lParam );
+		if( d3DDevice ) {
+			if( wParam==SIZE_MINIMIZED ) {
+				paused = true;
+			} else if( wParam==SIZE_MAXIMIZED ) {
+				OnResize();
+			} else if( wParam==SIZE_RESTORED ) {
+				// is resizing the user is dragging the resize bar
+				// do not recreate swap chain
+				if( !resizing ) {
+					// api calls like SetWindowPos or swapChain->SetFullScreenState
+					OnResize();
+				}
+			}
+		}
+		return 0;
+	case WM_GETMINMAXINFO:
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 480;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 320;
+		return 0;
+	case WM_MENUCHAR:
+		// don't beep when we alt-enter to change fullscreen
+		return MAKELRESULT( 0, MNC_CLOSE );
 	case WM_DESTROY:
 		PostQuitMessage( 0 );
-		break;
+		return 0;
 	default:
 		return DefWindowProc( hwnd, msg, wParam, lParam );
 	}
@@ -276,8 +304,8 @@ int Game::Run() {
 #ifdef DISPLAY_FPS
 				CalculateFrameStats();
 #endif
-				//UpdateScene( mTimer.DeltaTime() );
-				//DrawScene();
+				Update( timer.DT() );
+				Draw();
 			} else {
 				Sleep( 100 );
 			}
@@ -325,10 +353,18 @@ void Game::CalculateFrameStats() {
 		float fps = (float)frameCount; // frameCount / 1
 		float mspf = 1000.f/fps; //milliseconds per frame
 		std::wostringstream outs;
-		outs.precision( 6 );
+		outs.precision( 4 );
 		outs<<wndTitle<<L"     "<<L"FPS: "<<fps<<L"    Frame Time: "<<mspf<<L"ms";
 		SetWindowText( hMainWnd, outs.str().c_str() );
 		frameCount = 0;
 		timeElapsed += 1;
 	}
+}
+
+void Game::Update( float dt ) {
+
+}
+
+void Game::Draw() {
+
 }
