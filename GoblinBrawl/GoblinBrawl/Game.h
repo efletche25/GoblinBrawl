@@ -15,6 +15,7 @@ public:
 private:
 	bool InitMainWindow();
 	bool InitDirect3D();
+	bool LoadGameObjects();
 	void DisplayWinError( LPTSTR lpszFunction );
 	void CalculateFrameStats();
 	void Update(float dt);

@@ -5,6 +5,8 @@
 #include <assert.h>
 #include "Strsafe.h"
 #include <sstream>
+#include "ModelLoader.h"
+#include "Floor.h"
 
 #define DISPLAY_FPS
 
@@ -55,6 +57,9 @@ bool Game::Init() {
 		return false;
 	}
 	if( !InitDirect3D() ) {
+		return false;
+	}
+	if( !LoadGameObjects() ) {
 		return false;
 	}
 	return true;
@@ -361,10 +366,21 @@ void Game::CalculateFrameStats() {
 	}
 }
 
+bool Game::LoadGameObjects() {
+	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
+	Floor floor;
+	if( !floor.Init( &loader ) ) {
+		fprintf( stderr, "Error initiating floor" );
+		return false;
+	}
+}
+
 void Game::Update( float dt ) {
 
 }
 
 void Game::Draw() {
-
+	float clearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; 
+	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
+	swapChain->Present( 0, 0 );
 }
