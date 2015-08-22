@@ -53,6 +53,7 @@ Game::~Game() {
 }
 
 bool Game::Init() {
+	camera = Camera();
 	if( !InitMainWindow() ) {
 		return false;
 	}
@@ -228,6 +229,8 @@ void Game::OnResize() {
 	vp.MaxDepth = 0.f;
 	vp.MaxDepth = 1.f;
 	d3DImmediateContext->RSSetViewports( 1, &vp );
+
+	camera.Init( AspectRatio() );
 }
 
 LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
@@ -366,6 +369,10 @@ void Game::CalculateFrameStats() {
 	}
 }
 
+float Game::AspectRatio() {
+	return static_cast<float>(clientWidth)/clientHeight;
+}
+
 bool Game::LoadGameObjects() {
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
 	Floor floor;
@@ -376,10 +383,13 @@ bool Game::LoadGameObjects() {
 }
 
 void Game::Update( float dt ) {
-
+	XMVECTOR pos = XMVectorSet( 3.f, 2.f, 0.f, 1.f );
+	XMVECTOR dir = XMVectorSet( 0.f, 0.f, 1.f, 0.f );
+	camera.Update(pos, dir);
 }
 
 void Game::Draw() {
+	XMMATRIX viewProj = camera.GetViewProj();
 	float clearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; 
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
 	swapChain->Present( 0, 0 );

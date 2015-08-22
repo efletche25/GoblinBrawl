@@ -1,6 +1,7 @@
 #pragma once
 #include <d3dx11.h>
 #include "GameTimer.h"
+#include "Camera.h"
 
 #define MAX_LOADSTRING 100
 
@@ -20,6 +21,7 @@ private:
 	void CalculateFrameStats();
 	void Update(float dt);
 	void Draw();
+	float AspectRatio();
 	TCHAR					wndTitle[MAX_LOADSTRING];					
 	TCHAR					wndClass[MAX_LOADSTRING];	
 	HINSTANCE				hAppInstance;
@@ -38,5 +40,6 @@ private:
 	GameTimer				timer;
 	bool					paused;
 	bool					resizing;
+	Camera					camera;
 };
 
