@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "GameTimer.h"
 
-
 GameTimer::GameTimer() :
 secondsPerCount(0.0),
 dt(-1.0),

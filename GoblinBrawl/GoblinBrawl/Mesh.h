@@ -10,8 +10,15 @@ public:
 	inline ID3D11Buffer * VB() {
 		return vb;
 	}
-	inline void SetIB( ID3D11Buffer* ib ) {
+	inline UINT IndexCount() {
+		return indexCount;
+	}
+	inline DXGI_FORMAT IndexFormat() {
+		return indexFormat;
+	}
+	inline void SetIB( ID3D11Buffer* ib, UINT indexCount ) {
 		this->ib = ib;
+		this->indexCount = indexCount;
 	}
 	inline void SetVB( ID3D11Buffer* vb ) {
 		this->vb = vb;
@@ -19,7 +26,8 @@ public:
 private:
 	ID3D11Buffer*	vb;
 	ID3D11Buffer*	ib;
-	DXGI_FORMAT		indexBufferFormat;
+	UINT			indexCount;
+	DXGI_FORMAT		indexFormat;
 	UINT			vertexStride;
 };
 

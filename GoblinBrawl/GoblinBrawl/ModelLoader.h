@@ -21,5 +21,6 @@ private:
 	std::string			textureDir;
 	const aiScene*		scene;
 	ID3D11Buffer*		ib;
+	UINT				indexCount;
 	ID3D11Buffer*		vb;
 };

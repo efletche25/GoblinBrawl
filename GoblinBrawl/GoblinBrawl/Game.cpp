@@ -7,6 +7,8 @@
 #include <sstream>
 #include "ModelLoader.h"
 #include "Floor.h"
+#include "Effects.h"
+#include "Vertex.h"
 
 #define DISPLAY_FPS
 
@@ -60,6 +62,8 @@ bool Game::Init() {
 	if( !InitDirect3D() ) {
 		return false;
 	}
+	Effects::InitAll( d3DDevice );
+	InputLayouts::InitAll( d3DDevice );
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -226,7 +230,7 @@ void Game::OnResize() {
 	vp.TopLeftY = 0.f;
 	vp.Width = static_cast<float>(clientWidth);
 	vp.Height = static_cast<float>(clientHeight);
-	vp.MaxDepth = 0.f;
+	vp.MinDepth = 0.f;
 	vp.MaxDepth = 1.f;
 	d3DImmediateContext->RSSetViewports( 1, &vp );
 
@@ -375,16 +379,16 @@ float Game::AspectRatio() {
 
 bool Game::LoadGameObjects() {
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
-	Floor floor;
-	if( !floor.Init( &loader ) ) {
+	floor = Floor();
+	if( !floor.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating floor" );
 		return false;
 	}
 }
 
 void Game::Update( float dt ) {
-	XMVECTOR pos = XMVectorSet( 3.f, 2.f, 0.f, 1.f );
-	XMVECTOR dir = XMVectorSet( 0.f, 0.f, 1.f, 0.f );
+	XMVECTOR pos = XMVectorSet( 50.f, 50.f, 0.f, 1.f );
+	XMVECTOR dir = XMVectorSet( -1.f, -0.5f, 0.f, 0.f );
 	camera.Update(pos, dir);
 }
 
@@ -392,5 +396,8 @@ void Game::Draw() {
 	XMMATRIX viewProj = camera.GetViewProj();
 	float clearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; 
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
+	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
+
+	floor.Draw( viewProj, d3DImmediateContext );
 	swapChain->Present( 0, 0 );
 }

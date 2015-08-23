@@ -2,6 +2,7 @@
 #include <d3dx11.h>
 #include "GameTimer.h"
 #include "Camera.h"
+#include "Floor.h"
 
 #define MAX_LOADSTRING 100
 
@@ -41,5 +42,6 @@ private:
 	bool					paused;
 	bool					resizing;
 	Camera					camera;
+	Floor					floor;
 };
 

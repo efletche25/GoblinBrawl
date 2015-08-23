@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Camera.h"
 
-
 Camera::Camera() :
 targetOffset( 1.F ),
 nearZ( 1.f ),

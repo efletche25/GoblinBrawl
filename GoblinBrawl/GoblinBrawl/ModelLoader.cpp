@@ -47,13 +47,14 @@ bool ModelLoader::Load( std::string filename ) {
 Mesh* ModelLoader::GetMesh() {
 	Mesh* mesh = new Mesh();
 	mesh->SetVB( vb );
-	mesh->SetIB( ib );
+	mesh->SetIB( ib, indexCount );
 	return mesh;
 }
 
 void ModelLoader::CreateIndexBuffer( const aiFace* indices, UINT count ) {
+	indexCount = count;
 	std::vector<USHORT> indexData( count*3 );
-	for( UINT faceIndex = 0, dataIndex = 0; faceIndex<count; ++faceIndex, dataIndex+=3 ) {
+	for( UINT faceIndex = 0, dataIndex = 0; faceIndex<count; ++faceIndex, dataIndex += 3 ) {
 		assert( indices[faceIndex].mNumIndices==3 ); //mesh should be triangulated
 		indexData[dataIndex] = (USHORT)indices[faceIndex].mIndices[0];
 		indexData[dataIndex+1] = (USHORT)indices[faceIndex].mIndices[1];
