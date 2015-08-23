@@ -32,6 +32,7 @@ clientWidth( clientWidth ),
 clientHeight( clientHeight ),
 d3DDevice( nullptr ),
 d3DImmediateContext( nullptr ),
+d3DRasterizerState(nullptr),
 enable4xMSAA( false ),
 swapChain( nullptr ),
 depthStencilBuffer( nullptr ),
@@ -225,6 +226,20 @@ void Game::OnResize() {
 	// bind the views to the output merger stage
 	d3DImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView );
 
+	D3D11_RASTERIZER_DESC rs;
+	rs.FillMode = D3D11_FILL_SOLID;
+	rs.CullMode = D3D11_CULL_NONE;
+	rs.FrontCounterClockwise = false;
+	rs.DepthBias = 0;
+	rs.DepthBiasClamp = 0.0f;
+	rs.SlopeScaledDepthBias = 0.0f;
+	rs.DepthClipEnable = true;
+	rs.ScissorEnable = false;
+	rs.MultisampleEnable = false;
+	rs.AntialiasedLineEnable = false;
+	d3DDevice->CreateRasterizerState( &rs, &d3DRasterizerState );
+	d3DImmediateContext->RSSetState( d3DRasterizerState );
+
 	D3D11_VIEWPORT vp;
 	vp.TopLeftX = 0.f;
 	vp.TopLeftY = 0.f;
@@ -388,13 +403,13 @@ bool Game::LoadGameObjects() {
 
 void Game::Update( float dt ) {
 	XMVECTOR pos = XMVectorSet( 50.f, 50.f, 0.f, 1.f );
-	XMVECTOR dir = XMVectorSet( -1.f, -0.5f, 0.f, 0.f );
-	camera.Update(pos, dir);
+	XMVECTOR dir = XMVectorSet( 1.f, 0.f, 0.f, 0.f );
+	camera.Update( pos, dir );
 }
 
 void Game::Draw() {
 	XMMATRIX viewProj = camera.GetViewProj();
-	float clearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; 
+	float clearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 

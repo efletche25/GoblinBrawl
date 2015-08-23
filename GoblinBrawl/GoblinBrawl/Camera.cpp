@@ -4,7 +4,7 @@
 Camera::Camera() :
 targetOffset( 1.F ),
 nearZ( 1.f ),
-farZ( 1000.f ),
+farZ( 10000.f ),
 fovAngleY( XM_PIDIV4 ) {}
 
 Camera::~Camera() {}
@@ -17,7 +17,12 @@ void Camera::Init( float aspectRatio ) {
 
 void XM_CALLCONV Camera::Update( FXMVECTOR pos, FXMVECTOR dir ) {
 	XMVECTOR normDir = XMVector3Normalize( dir );
+
 	XMVECTOR target = XMVectorAdd( pos, XMVectorScale( normDir, targetOffset ) );
+
+	//FIXME
+	target = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
+
 	view = XMMatrixLookAtLH( pos, target, up );
 	viewProj = view*proj;
 }

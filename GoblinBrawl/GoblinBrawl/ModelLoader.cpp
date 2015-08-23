@@ -22,13 +22,14 @@ bool ModelLoader::Load( std::string filename ) {
 	Assimp::Importer importer;
 	std::string file = modelDir+filename;
 	Assimp::DefaultLogger::get()->info( "Importing: "+file );
-	scene = importer.ReadFile( file,
+	scene = importer.ReadFile( file, 
 		aiProcess_CalcTangentSpace|
 		aiProcess_MakeLeftHanded|
 		aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
-		aiProcess_JoinIdenticalVertices|
-		aiProcess_SortByPType );
+		//aiProcess_JoinIdenticalVertices|
+		aiProcess_SortByPType 
+		);
 
 	if( !scene ) {
 		Assimp::DefaultLogger::get()->error( importer.GetErrorString() );
@@ -52,7 +53,7 @@ Mesh* ModelLoader::GetMesh() {
 }
 
 void ModelLoader::CreateIndexBuffer( const aiFace* indices, UINT count ) {
-	indexCount = count;
+	indexCount = count * 3;
 	std::vector<USHORT> indexData( count*3 );
 	for( UINT faceIndex = 0, dataIndex = 0; faceIndex<count; ++faceIndex, dataIndex += 3 ) {
 		assert( indices[faceIndex].mNumIndices==3 ); //mesh should be triangulated

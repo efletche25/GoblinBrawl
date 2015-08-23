@@ -29,6 +29,7 @@ private:
 	HWND					hMainWnd;
 	ID3D11Device*			d3DDevice;
 	ID3D11DeviceContext*	d3DImmediateContext;
+	ID3D11RasterizerState*	d3DRasterizerState;
 	UINT					msaaQuality;
 	bool					enable4xMSAA;
 	int						clientWidth;
