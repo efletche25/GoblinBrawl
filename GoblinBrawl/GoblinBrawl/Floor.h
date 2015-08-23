@@ -3,6 +3,7 @@
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
 struct ID3DX11EffectMatrixVariable;
+struct ID3D11ShaderResourceView;
 
 class ModelLoader;
 class Mesh;
@@ -17,4 +18,5 @@ public:
 	void XM_CALLCONV Draw( DirectX::FXMMATRIX viewProj, ID3D11DeviceContext* context );
 private:
 	Mesh*							mesh;
+	ID3D11ShaderResourceView*		diffuseView;
 };

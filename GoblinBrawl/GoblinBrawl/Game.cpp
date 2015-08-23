@@ -33,7 +33,7 @@ clientHeight( clientHeight ),
 d3DDevice( nullptr ),
 d3DImmediateContext( nullptr ),
 d3DRasterizerState(nullptr),
-enable4xMSAA( false ),
+enable4xMSAA( true ),
 swapChain( nullptr ),
 depthStencilBuffer( nullptr ),
 renderTargetView( nullptr ),
@@ -228,14 +228,14 @@ void Game::OnResize() {
 
 	D3D11_RASTERIZER_DESC rs;
 	rs.FillMode = D3D11_FILL_SOLID;
-	rs.CullMode = D3D11_CULL_NONE;
+	rs.CullMode = D3D11_CULL_BACK;
 	rs.FrontCounterClockwise = false;
 	rs.DepthBias = 0;
 	rs.DepthBiasClamp = 0.0f;
 	rs.SlopeScaledDepthBias = 0.0f;
 	rs.DepthClipEnable = true;
 	rs.ScissorEnable = false;
-	rs.MultisampleEnable = false;
+	rs.MultisampleEnable = true;
 	rs.AntialiasedLineEnable = false;
 	d3DDevice->CreateRasterizerState( &rs, &d3DRasterizerState );
 	d3DImmediateContext->RSSetState( d3DRasterizerState );

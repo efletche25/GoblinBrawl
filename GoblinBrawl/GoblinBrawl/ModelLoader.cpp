@@ -3,8 +3,6 @@
 #include <vector>
 #include "assimp/DefaultLogger.hpp"
 #include "Mesh.h"
-#include "Vertex.h"
-#include "d3dUtil.h"
 
 ModelLoader::ModelLoader( ID3D11Device* device, std::string modelDir, std::string textureDir ) :
 device( device ),
@@ -18,17 +16,17 @@ ModelLoader::~ModelLoader() {
 	Assimp::DefaultLogger::kill();
 }
 
-bool ModelLoader::Load( std::string filename ) {
+bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	Assimp::Importer importer;
 	std::string file = modelDir+filename;
 	Assimp::DefaultLogger::get()->info( "Importing: "+file );
-	scene = importer.ReadFile( file, 
+	scene = importer.ReadFile( file,
 		aiProcess_CalcTangentSpace|
 		aiProcess_MakeLeftHanded|
 		aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
-		//aiProcess_JoinIdenticalVertices|
-		aiProcess_SortByPType 
+		aiProcess_JoinIdenticalVertices|
+		aiProcess_SortByPType
 		);
 
 	if( !scene ) {
@@ -40,7 +38,7 @@ bool ModelLoader::Load( std::string filename ) {
 		return false;
 	}
 	aiMesh* sceneMesh = scene->mMeshes[0];
-	CreateVertexBuffer( sceneMesh->mVertices, sceneMesh->mNumVertices );
+	CreateVertexBuffer( sceneMesh, type );
 	CreateIndexBuffer( sceneMesh->mFaces, sceneMesh->mNumFaces );
 	return true;
 }
@@ -53,7 +51,7 @@ Mesh* ModelLoader::GetMesh() {
 }
 
 void ModelLoader::CreateIndexBuffer( const aiFace* indices, UINT count ) {
-	indexCount = count * 3;
+	indexCount = count*3;
 	std::vector<USHORT> indexData( count*3 );
 	for( UINT faceIndex = 0, dataIndex = 0; faceIndex<count; ++faceIndex, dataIndex += 3 ) {
 		assert( indices[faceIndex].mNumIndices==3 ); //mesh should be triangulated
@@ -76,12 +74,34 @@ void ModelLoader::CreateIndexBuffer( const aiFace* indices, UINT count ) {
 	HR( device->CreateBuffer( &ibd, &iinitData, &ib ) );
 }
 
-void ModelLoader::CreateVertexBuffer( const aiVector3D* vertices, UINT count ) {
-	std::vector<Vertex::SimpleVertex> vertData( count );
-	for( UINT i = 0; i<count; ++i ) {
-		vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
+void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
+	UINT count = mesh->mNumVertices;
+	aiVector3D* vertices = mesh->mVertices;
+	switch( type ) {
+	case Vertex::SIMPLE:
+	{
+		std::vector<Vertex::SimpleVertex> vertData( count );
+		for( UINT i = 0; i<count; ++i ) {
+			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
+		}
+		SetVertices( device, count, vertData.data() );
+		break;
 	}
-
+	case Vertex::TERRAIN:
+	{
+		aiVector3D* normals = mesh->mNormals;
+		aiVector3D* texCoords = mesh->mTextureCoords[0];
+		std::vector<Vertex::TerrainVertex> vertData( count );
+		for( UINT i = 0; i<count; ++i ) {
+			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
+			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
+			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y);
+		}
+		SetVertices( device, count, vertData.data() );
+		break;
+	}
+	}
+	/*
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory( &vbd, sizeof( vbd ) );
 	vbd.Usage = D3D11_USAGE_DEFAULT;
@@ -94,4 +114,5 @@ void ModelLoader::CreateVertexBuffer( const aiVector3D* vertices, UINT count ) {
 	vinitData.pSysMem = vertData.data();
 
 	HR( device->CreateBuffer( &vbd, &vinitData, &vb ) );
+	*/
 }

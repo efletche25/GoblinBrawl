@@ -27,15 +27,27 @@ Effect( device, filename ) {
 	simpleTechnique = fx->GetTechniqueByName( "SimpleTech" );
 	worldViewProj = fx->GetVariableByName( "gWorldViewProj" )->AsMatrix();
 }
-
 SimpleEffect::~SimpleEffect() {}
 
+TerrainEffect::TerrainEffect( ID3D11Device* device, const std::wstring& filename ) :
+Effect( device, filename ) {
+	terrainTechnique = fx->GetTechniqueByName( "TerrainTech" );
+	world = fx->GetVariableByName( "gWorld" )->AsMatrix();
+	worldInvTranspose = fx->GetVariableByName( "gWorldInvTranspose" )->AsMatrix();
+	worldViewProj = fx->GetVariableByName( "gWorldViewProj" )->AsMatrix();
+	diffuseMap = fx->GetVariableByName( "gDiffuseMap" )->AsShaderResource();
+}
+TerrainEffect::~TerrainEffect() {}
+
 SimpleEffect* Effects::SimpleFX = 0;
+TerrainEffect* Effects::TerrainFX = 0;
 
 void Effects::InitAll( ID3D11Device* device ) {
 	SimpleFX = new SimpleEffect( device, L"fx/simple.fxo" );
+	TerrainFX = new TerrainEffect( device, L"fx/terrain.fxo" );
 }
 
 void Effects::DestroyAll() {
 	SafeDelete( SimpleFX );
+	SafeDelete( TerrainFX );
 }

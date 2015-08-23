@@ -63,6 +63,9 @@
     <ClInclude Include="Effects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MathUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -95,6 +98,9 @@
     <ClCompile Include="Effects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GoblinBrawl.rc">
@@ -111,6 +117,9 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="fx\simple.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="fx\terrain.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

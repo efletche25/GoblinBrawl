@@ -6,36 +6,44 @@
 #include "d3dUtil.h"
 #include "d3dx11effect.h"
 #include "Effects.h"
+#include "MathUtils.h"
 
-Floor::Floor() {}
+Floor::Floor() :
+mesh( nullptr ),
+diffuseView( nullptr )
+{}
 
 Floor::~Floor() {}
 
 bool Floor::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
-	modelLoader->Load( "floor.lxo" );
+	modelLoader->Load( "floor.lxo" , Vertex::TERRAIN);
 	mesh = modelLoader->GetMesh();
 	if( !mesh ) {
 		return false;
 	}
+	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/UV_checker.jpg", NULL, NULL, &diffuseView, NULL ) );
 	return true;
 }
 
 void XM_CALLCONV Floor::Draw( FXMMATRIX viewProj, ID3D11DeviceContext* context ) {
-
-	context->IASetInputLayout( InputLayouts::Simple );
+	context->IASetInputLayout( InputLayouts::Terrain );
 	context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	UINT stride = sizeof( Vertex::SimpleVertex );
+	UINT stride = sizeof( Vertex::TerrainVertex );
 	UINT offset = 0;
 	ID3D11Buffer* buffers[1] = { mesh->VB() };
 	context->IASetVertexBuffers( 0, 1, &buffers[0], &stride, &offset );
 	context->IASetIndexBuffer( mesh->IB(), mesh->IndexFormat(), 0 );
 
-	//The floor is always at 0 so worldViewProj == viewProj
-	//XMMATRIX world = XMMatrixIdentity();
-	//XMMATRIX worldViewProj = world*viewProj;
-	//fxWorldViewProj->SetMatrix( (float*)&worldViewProj );
-	Effects::SimpleFX->SetWorldWiewProj( viewProj );
-	ID3DX11EffectTechnique* tech = Effects::SimpleFX->simpleTechnique;
+	XMMATRIX world = XMMatrixIdentity();
+	XMMATRIX worldInvTranspose = MathUtils::InverseTranspose( world );
+	XMMATRIX worldViewProj = world*viewProj;
+
+	Effects::TerrainFX->SetWorld( world );
+	Effects::TerrainFX->SetWorldInvTranspose( worldInvTranspose );
+	Effects::TerrainFX->SetWorldViewProj( worldViewProj );
+	Effects::TerrainFX->SetDiffuseMap( diffuseView );
+
+	ID3DX11EffectTechnique* tech = Effects::TerrainFX->terrainTechnique;
 	D3DX11_TECHNIQUE_DESC td;
 	tech->GetDesc( &td );
 	for( UINT p = 0; p<td.Passes; ++p ) {
