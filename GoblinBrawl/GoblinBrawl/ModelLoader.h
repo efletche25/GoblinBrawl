@@ -28,8 +28,6 @@ private:
 
 	template <typename VertexType>
 	void SetVertices( ID3D11Device* device, UINT count ,const VertexType* vertices) {
-		ReleaseCOM( vb );
-
 		D3D11_BUFFER_DESC vbd;
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof( VertexType ) * count;

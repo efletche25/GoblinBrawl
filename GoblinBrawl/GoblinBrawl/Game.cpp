@@ -399,11 +399,21 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating floor" );
 		return false;
 	}
+	walls = Walls();
+	if( !walls.Init( &loader, d3DDevice ) ) {
+		fprintf( stderr, "Error initiating walls" );
+		return false;
+	}
+	lava = Lava();
+	if( !lava.Init( &loader, d3DDevice ) ) {
+		fprintf( stderr, "Error initiating lava" );
+		return false;
+	}
 }
 
 void Game::Update( float dt ) {
-	XMVECTOR pos = XMVectorSet( 50.f, 50.f, 0.f, 1.f );
-	XMVECTOR dir = XMVectorSet( 1.f, 0.f, 0.f, 0.f );
+	XMVECTOR pos = XMVectorSet( -100.f, 25.f, 0.f, 1.f );
+	XMVECTOR dir = XMVectorSet( 1.f, -0.2f, 0.f, 0.f );
 	camera.Update( pos, dir );
 }
 
@@ -414,5 +424,8 @@ void Game::Draw() {
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
 	floor.Draw( viewProj, d3DImmediateContext );
+	walls.Draw( viewProj, d3DImmediateContext );
+	lava.Draw( viewProj, d3DImmediateContext );
+	
 	swapChain->Present( 0, 0 );
 }

@@ -21,7 +21,7 @@ bool Floor::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 	if( !mesh ) {
 		return false;
 	}
-	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/UV_checker.jpg", NULL, NULL, &diffuseView, NULL ) );
+	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/floor_color.tif", NULL, NULL, &diffuseView, NULL ) );
 	return true;
 }
 

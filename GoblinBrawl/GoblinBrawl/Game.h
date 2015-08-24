@@ -3,6 +3,8 @@
 #include "GameTimer.h"
 #include "Camera.h"
 #include "Floor.h"
+#include "Lava.h"
+#include "Walls.h"
 
 #define MAX_LOADSTRING 100
 
@@ -44,5 +46,7 @@ private:
 	bool					resizing;
 	Camera					camera;
 	Floor					floor;
+	Walls					walls;
+	Lava					lava;
 };
 
