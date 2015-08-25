@@ -95,24 +95,11 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		for( UINT i = 0; i<count; ++i ) {
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
-			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y);
+			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
 		}
 		SetVertices( device, count, vertData.data() );
 		break;
 	}
 	}
-	/*
-	D3D11_BUFFER_DESC vbd;
-	ZeroMemory( &vbd, sizeof( vbd ) );
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth = sizeof( Vertex::SimpleVertex )*count;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
 
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = vertData.data();
-
-	HR( device->CreateBuffer( &vbd, &vinitData, &vb ) );
-	*/
 }
