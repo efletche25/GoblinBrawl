@@ -409,6 +409,12 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating lava" );
 		return false;
 	}
+	firePlinth = FirePlinth();
+	if( !firePlinth.Init( &loader, d3DDevice ) ) {
+		fprintf( stderr, "Error initiating fire plinth" );
+		return false;
+	}
+	return true;
 }
 
 void Game::Update( float dt ) {
@@ -426,6 +432,7 @@ void Game::Draw() {
 	floor.Draw( viewProj, d3DImmediateContext );
 	walls.Draw( viewProj, d3DImmediateContext );
 	lava.Draw( viewProj, d3DImmediateContext );
+	firePlinth.Draw( viewProj, d3DImmediateContext );
 	
 	swapChain->Present( 0, 0 );
 }

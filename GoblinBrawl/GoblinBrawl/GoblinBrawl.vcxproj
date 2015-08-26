@@ -95,6 +95,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="d3dx11effect.h" />
     <ClInclude Include="Effects.h" />
+    <ClInclude Include="FirePlinth.h" />
     <ClInclude Include="Floor.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameTimer.h" />
@@ -112,6 +113,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="FirePlinth.cpp" />
     <ClCompile Include="Floor.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameTimer.cpp" />

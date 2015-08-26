@@ -32,4 +32,5 @@ void InputLayouts::InitAll( ID3D11Device* device ) {
 
 void InputLayouts::DestroyAll() {
 	ReleaseCOM( Simple );
+	ReleaseCOM( Terrain );
 }

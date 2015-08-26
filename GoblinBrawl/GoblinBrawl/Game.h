@@ -5,6 +5,7 @@
 #include "Floor.h"
 #include "Lava.h"
 #include "Walls.h"
+#include "FirePlinth.h"
 
 #define MAX_LOADSTRING 100
 
@@ -48,5 +49,6 @@ private:
 	Floor					floor;
 	Walls					walls;
 	Lava					lava;
+	FirePlinth				firePlinth;
 };
 

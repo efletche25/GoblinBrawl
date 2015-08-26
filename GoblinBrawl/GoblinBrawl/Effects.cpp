@@ -17,7 +17,6 @@ fx( nullptr ) {
 	HR( D3DX11CreateEffectFromMemory( &compiledShader[0], size, 0, device, &fx ) );
 }
 
-
 Effect::~Effect() {
 	ReleaseCOM( fx );
 }

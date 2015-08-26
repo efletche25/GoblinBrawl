@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ModelLoader.h"
-#include <vector>
 #include "assimp/DefaultLogger.hpp"
 #include "Mesh.h"
 
@@ -26,7 +25,8 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 		aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
 		aiProcess_JoinIdenticalVertices|
-		aiProcess_SortByPType
+		aiProcess_SortByPType|
+		aiProcess_FlipUVs
 		);
 
 	if( !scene ) {
@@ -37,6 +37,7 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 		Assimp::DefaultLogger::get()->error( "File contains no mesh" );
 		return false;
 	}
+
 	aiMesh* sceneMesh = scene->mMeshes[0];
 	CreateVertexBuffer( sceneMesh, type );
 	CreateIndexBuffer( sceneMesh->mFaces, sceneMesh->mNumFaces );
@@ -100,6 +101,8 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		SetVertices( device, count, vertData.data() );
 		break;
 	}
+
+
 	}
 
 }
