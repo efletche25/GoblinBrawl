@@ -7,6 +7,7 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #include "Vertex.h"
 #include "d3dUtil.h"
+#include "Lighting.h"
 
 class Mesh;
 
@@ -16,16 +17,18 @@ public:
 	~ModelLoader();
 	bool Load( std::string filename, Vertex::VERTEX_TYPE type);
 	Mesh* GetMesh();
+	std::vector<PointLight> GetPointLights();
 private:
 	void CreateIndexBuffer(const aiFace* indices, UINT count);
 	void CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type );
-	ID3D11Device*		device;
-	std::string			modelDir;
-	std::string			textureDir;
-	const aiScene*		scene;
-	ID3D11Buffer*		ib;
-	UINT				indexCount;
-	ID3D11Buffer*		vb;
+	ID3D11Device*			device;
+	std::string				modelDir;
+	std::string				textureDir;
+	const aiScene*			scene;
+	ID3D11Buffer*			ib;
+	UINT					indexCount;
+	ID3D11Buffer*			vb;
+	std::vector<PointLight> pointLights;
 
 	template <typename VertexType>
 	void SetVertices( ID3D11Device* device, UINT count ,const VertexType* vertices) {

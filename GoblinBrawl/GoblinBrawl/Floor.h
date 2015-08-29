@@ -1,5 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
+#include "Lighting.h"
+
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
 struct ID3DX11EffectMatrixVariable;
@@ -15,8 +17,9 @@ public:
 	Floor();
 	~Floor();
 	bool Init( ModelLoader* modelLoader, ID3D11Device* device );
-	void XM_CALLCONV Draw( DirectX::FXMMATRIX viewProj, ID3D11DeviceContext* context );
+	void XM_CALLCONV Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context );
 private:
 	Mesh*							mesh;
 	ID3D11ShaderResourceView*		diffuseView;
+	Material						mat;
 };

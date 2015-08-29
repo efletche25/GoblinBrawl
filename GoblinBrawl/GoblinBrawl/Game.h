@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include <d3dx11.h>
 #include "GameTimer.h"
 #include "Camera.h"
@@ -6,6 +7,7 @@
 #include "Lava.h"
 #include "Walls.h"
 #include "FirePlinth.h"
+#include "Lighting.h"
 
 #define MAX_LOADSTRING 100
 
@@ -50,5 +52,6 @@ private:
 	Walls					walls;
 	Lava					lava;
 	FirePlinth				firePlinth;
+	Lighting				lighting;
 };
 

@@ -15,7 +15,8 @@ void Camera::Init( float aspectRatio ) {
 	proj = XMMatrixPerspectiveFovLH( fovAngleY, aspectRatio, nearZ, farZ );
 }
 
-void XM_CALLCONV Camera::Update( FXMVECTOR pos, FXMVECTOR dir ) {
+void XM_CALLCONV Camera::Update( FXMVECTOR _pos, FXMVECTOR dir ) {
+	pos = _pos;
 	XMVECTOR normDir = XMVector3Normalize( dir );
 
 	XMVECTOR target = XMVectorAdd( pos, XMVectorScale( normDir, targetOffset ) );
@@ -29,4 +30,8 @@ void XM_CALLCONV Camera::Update( FXMVECTOR pos, FXMVECTOR dir ) {
 
 XMMATRIX XM_CALLCONV Camera::GetViewProj() {
 	return viewProj;
+}
+
+XMVECTOR XM_CALLCONV Camera::GetPos() {
+	return pos;
 }

@@ -75,6 +75,9 @@
     <ClInclude Include="FirePlinth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -119,6 +122,9 @@
     <ClCompile Include="FirePlinth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lighting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GoblinBrawl.rc">
@@ -138,6 +144,12 @@
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="fx\terrain.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="fx\lightHelper.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="fx\staticGeom.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

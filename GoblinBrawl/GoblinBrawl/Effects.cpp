@@ -38,12 +38,27 @@ Effect( device, filename ) {
 }
 TerrainEffect::~TerrainEffect() {}
 
+StaticGeomEffect::StaticGeomEffect( ID3D11Device* device, const std::wstring& filename ) :
+Effect( device, filename ) {
+	staticGeomLight5Tech = fx->GetTechniqueByName( "StaticGeomLight5" );
+	world = fx->GetVariableByName( "gWorld" )->AsMatrix();
+	worldInvTranspose = fx->GetVariableByName( "gWorldInvTranspose" )->AsMatrix();
+	worldViewProj = fx->GetVariableByName( "gWorldViewProj" )->AsMatrix();
+	diffuseMap = fx->GetVariableByName( "gDiffuseMap" )->AsShaderResource();
+	eyePosW = fx->GetVariableByName( "gEyePosW" )->AsVector();
+	pointLights = fx->GetVariableByName( "gPointLights" );
+	mat = fx->GetVariableByName( "gMaterial" );
+}
+StaticGeomEffect::~StaticGeomEffect() {}
+
 SimpleEffect* Effects::SimpleFX = 0;
 TerrainEffect* Effects::TerrainFX = 0;
+StaticGeomEffect* Effects::StaticGeomFX = 0;
 
 void Effects::InitAll( ID3D11Device* device ) {
 	SimpleFX = new SimpleEffect( device, L"fx/simple.fxo" );
 	TerrainFX = new TerrainEffect( device, L"fx/terrain.fxo" );
+	StaticGeomFX = new StaticGeomEffect( device, L"fx/staticGeom.fxo" );
 }
 
 void Effects::DestroyAll() {

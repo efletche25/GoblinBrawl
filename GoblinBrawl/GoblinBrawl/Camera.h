@@ -11,7 +11,9 @@ public:
 	// target will be calculated by the Update function.
 	void XM_CALLCONV Update( FXMVECTOR pos, FXMVECTOR dir);
 	XMMATRIX XM_CALLCONV GetViewProj();
+	XMVECTOR XM_CALLCONV GetPos();
 private:
+	XMVECTOR pos;
 	XMMATRIX view;
 	XMMATRIX proj;
 	XMVECTOR up;

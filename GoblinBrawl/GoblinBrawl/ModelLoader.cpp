@@ -37,7 +37,6 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 		Assimp::DefaultLogger::get()->error( "File contains no mesh" );
 		return false;
 	}
-
 	aiMesh* sceneMesh = scene->mMeshes[0];
 	CreateVertexBuffer( sceneMesh, type );
 	CreateIndexBuffer( sceneMesh->mFaces, sceneMesh->mNumFaces );
@@ -49,6 +48,10 @@ Mesh* ModelLoader::GetMesh() {
 	mesh->SetVB( vb );
 	mesh->SetIB( ib, indexCount );
 	return mesh;
+}
+
+std::vector<PointLight> ModelLoader::GetPointLights() {
+	return pointLights;
 }
 
 void ModelLoader::CreateIndexBuffer( const aiFace* indices, UINT count ) {
@@ -101,8 +104,5 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		SetVertices( device, count, vertData.data() );
 		break;
 	}
-
-
 	}
-
 }

@@ -414,11 +414,16 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
 	}
+	lighting = Lighting();
+	if( !lighting.Init( &loader ) ) {
+		fprintf( stderr, "Error initiating lighting" );
+		return false;
+	}
 	return true;
 }
 
 void Game::Update( float dt ) {
-	XMVECTOR pos = XMVectorSet( -100.f, 25.f, 0.f, 1.f );
+	XMVECTOR pos = XMVectorSet( 100.f, 50.f, 10.f, 1.f );
 	XMVECTOR dir = XMVectorSet( 1.f, -0.2f, 0.f, 0.f );
 	camera.Update( pos, dir );
 }
@@ -429,7 +434,7 @@ void Game::Draw() {
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
-	floor.Draw( viewProj, d3DImmediateContext );
+	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(),  d3DImmediateContext );
 	walls.Draw( viewProj, d3DImmediateContext );
 	lava.Draw( viewProj, d3DImmediateContext );
 	firePlinth.Draw( viewProj, d3DImmediateContext );
