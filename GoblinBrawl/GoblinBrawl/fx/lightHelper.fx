@@ -46,5 +46,4 @@ void ComputePointLight( Material mat, PointLight L, float3 pos, float3 normal, f
 	float att = 1.0f/dot( L.Att, float3(1.0f, d, d * d) );
 	diffuse *= att;
 	spec *= att;
-	
 }

@@ -39,7 +39,7 @@ VertexOut VS( VertexIn vin ) {
 
 	// Transform to world space
 	vout.PosW = mul( float4(vin.PosL, 1.0f), gWorld ).xyz;
-	vout.NormalW = mul( vin.NormalL, (float3x3)gWorldInvTranspose );
+	vout.NormalW = vin.NormalL;// mul( vin.NormalL, (float3x3)gWorldInvTranspose );
 
 	// Transform to homogeneous clip space.
 	vout.PosH = mul( float4(vin.PosL, 1.0f), gWorldViewProj );
@@ -67,8 +67,8 @@ float4 PS( VertexOut pin, uniform int gLightCount ) : SV_Target{
 		///
 
 	float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-		float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-		float4 spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float4 spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	[unroll]
 	for( int i = 0; i<gLightCount; ++i ) {
 		float4 A, D, S;
@@ -78,9 +78,10 @@ float4 PS( VertexOut pin, uniform int gLightCount ) : SV_Target{
 		spec += S;
 	}
 	
-	float4 litColor = diffuse;
+	float4 litColor = texColor * (ambient + diffuse) + spec;
 	litColor.a = gMaterial.Diffuse.a;
-	//return float4(gPointLights[1].Position, 1.0f);
+
+	//return float4(pin.NormalW, 1.0f);
 	return litColor;
 }
 

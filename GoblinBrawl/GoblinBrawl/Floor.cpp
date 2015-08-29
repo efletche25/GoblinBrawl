@@ -22,9 +22,9 @@ bool Floor::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 		return false;
 	}
 	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/floor_color.tif", NULL, NULL, &diffuseView, NULL ) );
-	mat.Ambient = XMFLOAT4( 0.8f, 0.8f, 0.8f, 1.0f );
+	mat.Ambient = XMFLOAT4( 0.01f, 0.1f, 0.3f, 1.0f );
 	mat.Diffuse = XMFLOAT4( 0.8f, 0.8f, 0.8f, 1.0f );
-	mat.Specular = XMFLOAT4( 0.8f, 0.8f, 0.8f, 16.0f );
+	mat.Specular = XMFLOAT4( 0.3f, 0.3f, 0.3f, 32.0f );
 	return true;
 }
 

@@ -20,7 +20,7 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	std::string file = modelDir+filename;
 	Assimp::DefaultLogger::get()->info( "Importing: "+file );
 	scene = importer.ReadFile( file,
-		aiProcess_CalcTangentSpace|
+		//aiProcess_CalcTangentSpace|
 		aiProcess_MakeLeftHanded|
 		aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
