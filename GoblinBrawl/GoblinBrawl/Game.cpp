@@ -394,6 +394,11 @@ float Game::AspectRatio() {
 
 bool Game::LoadGameObjects() {
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
+	lighting = Lighting();
+	if( !lighting.Init( &loader ) ) {
+		fprintf( stderr, "Error initiating lighting" );
+		return false;
+	}
 	floor = Floor();
 	if( !floor.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating floor" );
@@ -414,18 +419,23 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
 	}
-	lighting = Lighting();
-	if( !lighting.Init( &loader ) ) {
-		fprintf( stderr, "Error initiating lighting" );
+	goblin = Goblin();
+	if( !goblin.Init( &loader, d3DDevice ) ) {
+		fprintf( stderr, "Error initiating goblin" );
 		return false;
 	}
 	return true;
 }
 
 void Game::Update( float dt ) {
-	XMVECTOR pos = XMVectorSet( 100.f, 50.f, 10.f, 1.f );
-	XMVECTOR dir = XMVectorSet( 1.f, -0.2f, 0.f, 0.f );
-	camera.Update( pos, dir );
+	XMVECTOR camPos = XMVectorSet( 15.f, 12.f, 1.f, 1.f );
+	XMVECTOR camDir = XMVectorSet( 1.f, -0.2f, 0.f, 0.f );
+	camera.Update( camPos, camDir );
+
+	XMVECTOR goblinPos = XMVectorSet(0.f, 4.f, 0.f, 1.0f);
+	XMVECTOR goblinRot = XMVectorSet( 0.f, XM_PIDIV2, 0.f, 0.f );
+	goblin.SetPos( goblinPos );
+	goblin.SetRot( goblinRot );
 }
 
 void Game::Draw() {
@@ -438,6 +448,7 @@ void Game::Draw() {
 	walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	lava.Draw( viewProj, d3DImmediateContext );
 	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 
 	swapChain->Present( 0, 0 );
 }

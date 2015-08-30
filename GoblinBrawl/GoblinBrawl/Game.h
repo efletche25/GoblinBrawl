@@ -7,6 +7,7 @@
 #include "Lava.h"
 #include "Walls.h"
 #include "FirePlinth.h"
+#include "Goblin.h"
 #include "Lighting.h"
 
 #define MAX_LOADSTRING 100
@@ -53,5 +54,6 @@ private:
 	Lava					lava;
 	FirePlinth				firePlinth;
 	Lighting				lighting;
+	Goblin					goblin;
 };
 

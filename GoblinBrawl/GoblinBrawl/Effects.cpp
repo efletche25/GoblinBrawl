@@ -51,17 +51,35 @@ Effect( device, filename ) {
 }
 StaticGeomEffect::~StaticGeomEffect() {}
 
+CharacterEffect::CharacterEffect( ID3D11Device* device, const std::wstring& filename ) :
+Effect( device, filename ) {
+	characterLight5Tech = fx->GetTechniqueByName( "CharacterLight5" );
+	world = fx->GetVariableByName( "gWorld" )->AsMatrix();
+	worldInvTranspose = fx->GetVariableByName( "gWorldInvTranspose" )->AsMatrix();
+	worldViewProj = fx->GetVariableByName( "gWorldViewProj" )->AsMatrix();
+	diffuseMap = fx->GetVariableByName( "gDiffuseMap" )->AsShaderResource();
+	eyePosW = fx->GetVariableByName( "gEyePosW" )->AsVector();
+	pointLights = fx->GetVariableByName( "gPointLights" );
+	mat = fx->GetVariableByName( "gMaterial" );
+}
+
+CharacterEffect::~CharacterEffect() {}
+
 SimpleEffect* Effects::SimpleFX = 0;
 TerrainEffect* Effects::TerrainFX = 0;
 StaticGeomEffect* Effects::StaticGeomFX = 0;
+CharacterEffect* Effects::CharacterFX = 0;
 
 void Effects::InitAll( ID3D11Device* device ) {
 	SimpleFX = new SimpleEffect( device, L"fx/simple.fxo" );
 	TerrainFX = new TerrainEffect( device, L"fx/terrain.fxo" );
 	StaticGeomFX = new StaticGeomEffect( device, L"fx/staticGeom.fxo" );
+	CharacterFX = new CharacterEffect( device, L"fx/character.fxo" );
 }
 
 void Effects::DestroyAll() {
 	SafeDelete( SimpleFX );
 	SafeDelete( TerrainFX );
+	SafeDelete( StaticGeomFX );
+	SafeDelete( CharacterFX );
 }

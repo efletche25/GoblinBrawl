@@ -91,6 +91,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		SetVertices( device, count, vertData.data() );
 		break;
 	}
+	case Vertex::CHARACTER:
 	case Vertex::TERRAIN:
 	{
 		aiVector3D* normals = mesh->mNormals;
