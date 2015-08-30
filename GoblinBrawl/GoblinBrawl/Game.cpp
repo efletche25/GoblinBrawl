@@ -429,11 +429,9 @@ bool Game::LoadGameObjects() {
 
 void Game::Update( float dt ) {
 	XMVECTOR camPos = XMVectorSet( 15.f, 12.f, 1.f, 1.f );
-	XMVECTOR camDir = XMVectorSet( 1.f, -0.2f, 0.f, 0.f );
-	camera.Update( camPos, camDir );
-
 	XMVECTOR goblinPos = XMVectorSet(0.f, 4.f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, XM_PIDIV2, 0.f, 0.f );
+	camera.Update( camPos, goblinPos );
 	goblin.SetPos( goblinPos );
 	goblin.SetRot( goblinRot );
 }
