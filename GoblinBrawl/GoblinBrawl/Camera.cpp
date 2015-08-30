@@ -2,8 +2,7 @@
 #include "Camera.h"
 
 Camera::Camera() :
-targetOffset( 1.F ),
-nearZ( 8.f ),
+nearZ( 1.f ),
 farZ( 10000.f ),
 fovAngleY( XM_PIDIV4 ) {}
 

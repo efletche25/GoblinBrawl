@@ -17,7 +17,6 @@ private:
 	XMMATRIX view;
 	XMMATRIX proj;
 	XMVECTOR up;
-	float targetOffset;
 	XMMATRIX viewProj;
 	FLOAT nearZ;
 	FLOAT farZ;
