@@ -22,10 +22,13 @@ bool FirePlinth::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 		return false;
 	}
 	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/fire_plinth_color.tif", NULL, NULL, &diffuseView, NULL ) );
+	mat.Ambient = XMFLOAT4( 0.02f, 0.3f, 0.5f, 1.0f );
+	mat.Diffuse = XMFLOAT4( 0.8f, 0.8f, 0.8f, 1.0f );
+	mat.Specular = XMFLOAT4( 0.3f, 0.3f, 0.3f, 32.0f );
 	return true;
 }
 
-void XM_CALLCONV FirePlinth::Draw( FXMMATRIX viewProj, ID3D11DeviceContext* context ) {
+void XM_CALLCONV FirePlinth::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context ) {
 	context->IASetInputLayout( InputLayouts::Terrain );
 	context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 	UINT stride = sizeof( Vertex::TerrainVertex );
@@ -38,12 +41,15 @@ void XM_CALLCONV FirePlinth::Draw( FXMMATRIX viewProj, ID3D11DeviceContext* cont
 	XMMATRIX worldInvTranspose = MathUtils::InverseTranspose( world );
 	XMMATRIX worldViewProj = world*viewProj;
 
-	Effects::TerrainFX->SetWorld( world );
-	Effects::TerrainFX->SetWorldInvTranspose( worldInvTranspose );
-	Effects::TerrainFX->SetWorldViewProj( worldViewProj );
-	Effects::TerrainFX->SetDiffuseMap( diffuseView );
+	Effects::StaticGeomFX->SetWorld( world );
+	Effects::StaticGeomFX->SetWorldInvTranspose( worldInvTranspose );
+	Effects::StaticGeomFX->SetWorldViewProj( worldViewProj );
+	Effects::StaticGeomFX->SetDiffuseMap( diffuseView );
+	Effects::StaticGeomFX->SetEyePosW( cameraPos );
+	Effects::StaticGeomFX->SetPointLights( pointLights.data() );
+	Effects::StaticGeomFX->SetMaterial( mat );
 
-	ID3DX11EffectTechnique* tech = Effects::TerrainFX->terrainTechnique;
+	ID3DX11EffectTechnique* tech = Effects::StaticGeomFX->staticGeomLight5Tech;
 	D3DX11_TECHNIQUE_DESC td;
 	tech->GetDesc( &td );
 	for( UINT p = 0; p<td.Passes; ++p ) {

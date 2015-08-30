@@ -32,7 +32,7 @@ clientWidth( clientWidth ),
 clientHeight( clientHeight ),
 d3DDevice( nullptr ),
 d3DImmediateContext( nullptr ),
-d3DRasterizerState(nullptr),
+d3DRasterizerState( nullptr ),
 enable4xMSAA( true ),
 swapChain( nullptr ),
 depthStencilBuffer( nullptr ),
@@ -434,10 +434,10 @@ void Game::Draw() {
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
-	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(),  d3DImmediateContext );
-	walls.Draw( viewProj, d3DImmediateContext );
+	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	lava.Draw( viewProj, d3DImmediateContext );
-	firePlinth.Draw( viewProj, d3DImmediateContext );
-	
+	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+
 	swapChain->Present( 0, 0 );
 }
