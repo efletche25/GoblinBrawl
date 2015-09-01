@@ -45,4 +45,10 @@ private:
 
 		HR( device->CreateBuffer( &vbd, &vinitData, &vb ) );
 	}
+
+	struct BoneWeight {
+		BoneWeight::BoneWeight( int boneIndex, float weight ) : boneIndex( boneIndex ), weight( weight ) {}
+		int boneIndex;
+		float weight;
+	};
 };

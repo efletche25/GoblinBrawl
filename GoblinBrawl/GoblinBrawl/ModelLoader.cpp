@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "ModelLoader.h"
+#include <map>
+#include <assert.h>
 #include "assimp/DefaultLogger.hpp"
 #include "Mesh.h"
 
@@ -101,6 +103,44 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
+		}
+		SetVertices( device, count, vertData.data() );
+		break;
+	}
+	case Vertex::CHARACTER_SKINNED:
+	{
+		std::multimap<int, BoneWeight> vertexBoneWeight;
+		for( int boneIndex = 0; boneIndex<mesh->mNumBones; ++boneIndex ) {
+			auto bone = mesh->mBones[boneIndex];
+			for( int i = 0; i<bone->mNumWeights; ++i ) {
+				auto boneWeight = BoneWeight( boneIndex, bone->mWeights[i].mWeight );
+				vertexBoneWeight.insert( std::pair<int, BoneWeight>( bone->mWeights[i].mVertexId, boneWeight ) );
+			}
+		}
+		aiVector3D* normals = mesh->mNormals;
+		aiVector3D* texCoords = mesh->mTextureCoords[0];
+		std::vector<Vertex::CharacterSkinnedVertex> vertData( count );
+		for( UINT i = 0; i<count; ++i ) {
+			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
+			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
+			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
+			
+			BYTE boneIndices[4] = { 0, 0, 0, 0 };
+			float weights[4] = { 0, 0, 0, 0 };
+			int j = 0;
+			auto itlow = vertexBoneWeight.lower_bound( i );
+			auto itup = vertexBoneWeight.upper_bound( i );
+			for( auto it = itlow; it!=itup; ++it ) {
+				assert(j<4); // each vertex should not be influenced by more than 4 bones
+				boneIndices[j] = it->second.boneIndex;
+				weights[j] = it->second.weight;
+				++j;
+			}
+			vertData[i].BoneIndicies[0] = boneIndices[0];
+			vertData[i].BoneIndicies[1] = boneIndices[1];
+			vertData[i].BoneIndicies[2] = boneIndices[2];
+			vertData[i].BoneIndicies[3] = boneIndices[3];
+			vertData[i].Weights = XMFLOAT4(weights);
 		}
 		SetVertices( device, count, vertData.data() );
 		break;

@@ -399,27 +399,22 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating lighting" );
 		return false;
 	}
-	floor = Floor();
 	if( !floor.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating floor" );
 		return false;
 	}
-	walls = Walls();
 	if( !walls.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating walls" );
 		return false;
 	}
-	lava = Lava();
 	if( !lava.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating lava" );
 		return false;
 	}
-	firePlinth = FirePlinth();
 	if( !firePlinth.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
 	}
-	goblin = Goblin();
 	if( !goblin.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating goblin" );
 		return false;

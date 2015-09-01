@@ -28,8 +28,8 @@ namespace Vertex {
 		XMFLOAT3	Pos;
 		XMFLOAT3	Normal;
 		XMFLOAT2	Tex;
-		XMFLOAT3	Weights;
-		BYTE		BoneIndecies[4];
+		XMFLOAT4	Weights;
+		BYTE		BoneIndicies[4];
 	};
 }
 
@@ -48,5 +48,5 @@ public:
 	static ID3D11InputLayout* Simple;
 	static ID3D11InputLayout* Terrain;
 	static ID3D11InputLayout* Character;
-	static ID3D11InputLayout* CharcterSkinned;
+	static ID3D11InputLayout* CharacterSkinned;
 };

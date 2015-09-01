@@ -16,10 +16,10 @@ diffuseView(nullptr)
 Goblin::~Goblin() {}
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
-	modelLoader->Load( "Goblin_Anim.fbx", Vertex::CHARACTER );
+	modelLoader->Load( "Goblin_Anim.fbx", Vertex::CHARACTER_SKINNED );
 	//modelLoader->Load( "goblin.lxo", Vertex::CHARACTER );
 	mesh = modelLoader->GetMesh();
-	if( !mesh ) {
+	if( mesh->VB()==nullptr ) {
 		return false;
 	}
 	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/goblin_color.tif", NULL, NULL, &diffuseView, NULL ) );
@@ -36,9 +36,9 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 }
 
 void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context ) {
-	context->IASetInputLayout( InputLayouts::Character );
+	context->IASetInputLayout( InputLayouts::CharacterSkinned );
 	context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	UINT stride = sizeof( Vertex::CharacterVertex );
+	UINT stride = sizeof( Vertex::CharacterSkinnedVertex );
 	UINT offset = 0;
 	ID3D11Buffer* buffers[1] = { mesh->VB() };
 	context->IASetVertexBuffers( 0, 1, &buffers[0], &stride, &offset );
@@ -48,15 +48,15 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 	XMMATRIX worldInvTranspose = MathUtils::InverseTranspose( world );
 	XMMATRIX worldViewProj = world*viewProj;
 
-	Effects::CharacterFX->SetWorld( world );
-	Effects::CharacterFX->SetWorldInvTranspose( worldInvTranspose );
-	Effects::CharacterFX->SetWorldViewProj( worldViewProj );
-	Effects::CharacterFX->SetDiffuseMap( diffuseView );
-	Effects::CharacterFX->SetEyePosW( cameraPos );
-	Effects::CharacterFX->SetPointLights( pointLights.data() );
-	Effects::CharacterFX->SetMaterial( mat );
+	Effects::CharacterSkinnedFX->SetWorld( world );
+	Effects::CharacterSkinnedFX->SetWorldInvTranspose( worldInvTranspose );
+	Effects::CharacterSkinnedFX->SetWorldViewProj( worldViewProj );
+	Effects::CharacterSkinnedFX->SetDiffuseMap( diffuseView );
+	Effects::CharacterSkinnedFX->SetEyePosW( cameraPos );
+	Effects::CharacterSkinnedFX->SetPointLights( pointLights.data() );
+	Effects::CharacterSkinnedFX->SetMaterial( mat );
 
-	ID3DX11EffectTechnique* tech = Effects::CharacterFX->characterLight5Tech;
+	ID3DX11EffectTechnique* tech = Effects::CharacterSkinnedFX->characterSkinnedLight5Tech;
 	D3DX11_TECHNIQUE_DESC td;
 	tech->GetDesc( &td );
 	for( UINT p = 0; p<td.Passes; ++p ) {
