@@ -16,7 +16,8 @@ diffuseView(nullptr)
 Goblin::~Goblin() {}
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
-	modelLoader->Load( "goblin.lxo", Vertex::CHARACTER );
+	modelLoader->Load( "Goblin_Anim.fbx", Vertex::CHARACTER );
+	//modelLoader->Load( "goblin.lxo", Vertex::CHARACTER );
 	mesh = modelLoader->GetMesh();
 	if( !mesh ) {
 		return false;
@@ -28,7 +29,8 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 
 	pos = XMMatrixIdentity();
 	rot = XMMatrixIdentity();
-	scale = XMMatrixIdentity();
+	//scale = XMMatrixIdentity();
+	scale = XMMatrixScaling( 0.01f, 0.01f, 0.01f );
 
 	return true;
 }

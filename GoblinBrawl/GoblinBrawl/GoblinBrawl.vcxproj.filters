@@ -161,5 +161,8 @@
     <FxCompile Include="fx\character.fx">
       <Filter>fx</Filter>
     </FxCompile>
+    <FxCompile Include="fx\characterSkinned.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
