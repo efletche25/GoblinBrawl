@@ -96,7 +96,7 @@ public:
 	void XM_CALLCONV SetEyePosW( const DirectX::FXMVECTOR v ) { eyePosW->SetRawValue( &v, 0, sizeof( DirectX::XMFLOAT3 ) ); }
 	void SetPointLights( const PointLight* lights ) { pointLights->SetRawValue( lights, 0, POINTLIGHT_COUNT *sizeof( PointLight ) ); }
 	void SetMaterial( const Material& m ) { mat->SetRawValue( &m, 0, sizeof( Material ) ); }
-	void SetBoneTransforms( const XMFLOAT4X4* m, int cnt ) { boneTransforms->SetMatrixArray( reinterpret_cast<const float*>(m), 0, cnt ); }
+	void XM_CALLCONV SetBoneTransforms( DirectX::XMFLOAT4X4* m, int cnt ) { boneTransforms->SetMatrixArray( reinterpret_cast<const float*>(m), 0, cnt ); }
 	ID3DX11EffectTechnique*					characterSkinnedLight5Tech;
 	ID3DX11EffectMatrixVariable*			world;
 	ID3DX11EffectMatrixVariable*			worldInvTranspose;

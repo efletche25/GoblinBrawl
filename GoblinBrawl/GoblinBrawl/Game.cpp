@@ -429,6 +429,7 @@ void Game::Update( float dt ) {
 	camera.Update( camPos, goblinPos );
 	goblin.SetPos( goblinPos );
 	goblin.SetRot( goblinRot );
+	goblin.Update( dt );
 }
 
 void Game::Draw() {

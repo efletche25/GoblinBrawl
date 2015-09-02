@@ -9,6 +9,7 @@ struct ID3D11ShaderResourceView;
 
 class ModelLoader;
 class Mesh;
+class Skeleton;
 class ID3D11DeviceContext;
 class ID3D11Device;
 
@@ -17,11 +18,13 @@ public:
 	Goblin();
 	~Goblin();
 	bool Init( ModelLoader* modelLoader, ID3D11Device* device );
+	void Update(float dt);
 	void XM_CALLCONV Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context );
 	void XM_CALLCONV SetPos( FXMVECTOR pos );
 	void XM_CALLCONV SetRot( FXMVECTOR rot );
 private:
 	Mesh*							mesh;
+	Skeleton*						skeleton;
 	ID3D11ShaderResourceView*		diffuseView;
 	Material						mat;
 	XMMATRIX						pos;

@@ -10,6 +10,7 @@
 #include "Lighting.h"
 
 class Mesh;
+class Skeleton;
 
 class ModelLoader {
 public:
@@ -17,10 +18,12 @@ public:
 	~ModelLoader();
 	bool Load( std::string filename, Vertex::VERTEX_TYPE type);
 	Mesh* GetMesh();
+	Skeleton* GetSkeleton();
 	std::vector<PointLight> GetPointLights();
 private:
 	void CreateIndexBuffer(const aiFace* indices, UINT count);
 	void CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type );
+	void ModelLoader::CreateSkeleton( aiBone** bones, int numBones );
 	ID3D11Device*			device;
 	std::string				modelDir;
 	std::string				textureDir;
@@ -29,6 +32,7 @@ private:
 	UINT					indexCount;
 	ID3D11Buffer*			vb;
 	std::vector<PointLight> pointLights;
+	Skeleton*				skeleton;
 
 	template <typename VertexType>
 	void SetVertices( ID3D11Device* device, UINT count ,const VertexType* vertices) {

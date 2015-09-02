@@ -7,19 +7,27 @@
 #include "d3dx11effect.h"
 #include "Effects.h"
 #include "MathUtils.h"
+#include "Skeleton.h"
 
 Goblin::Goblin() :
 mesh(nullptr),
 diffuseView(nullptr)
 {}
 
-Goblin::~Goblin() {}
+Goblin::~Goblin() {
+	delete skeleton;
+	delete mesh;
+}
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 	modelLoader->Load( "Goblin_Anim.fbx", Vertex::CHARACTER_SKINNED );
 	//modelLoader->Load( "goblin.lxo", Vertex::CHARACTER );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
+		return false;
+	}
+	skeleton = modelLoader->GetSkeleton();
+	if( skeleton==nullptr ) {
 		return false;
 	}
 	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/goblin_color.tif", NULL, NULL, &diffuseView, NULL ) );
@@ -55,6 +63,9 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 	Effects::CharacterSkinnedFX->SetEyePosW( cameraPos );
 	Effects::CharacterSkinnedFX->SetPointLights( pointLights.data() );
 	Effects::CharacterSkinnedFX->SetMaterial( mat );
+	auto a = skeleton->GetFinalTransforms();
+	auto b = skeleton->BoneCount();
+	Effects::CharacterSkinnedFX->SetBoneTransforms( a, b );
 
 	ID3DX11EffectTechnique* tech = Effects::CharacterSkinnedFX->characterSkinnedLight5Tech;
 	D3DX11_TECHNIQUE_DESC td;
@@ -63,6 +74,13 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 		tech->GetPassByIndex( p )->Apply( 0, context );
 		context->DrawIndexed( mesh->IndexCount(), 0, 0 );
 	}
+}
+
+void Goblin::Update( float dt ) {
+	XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
+	XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
+	XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.1f, 1.1f, 2.1f, 1.f ) );
+	skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Clavicle_R" );
 }
 
 void XM_CALLCONV Goblin::SetPos( FXMVECTOR _pos ) {

@@ -29,7 +29,7 @@ struct VertexIn {
 	float3 PosL		:	POSITION;
 	float3 NormalL	:	NORMAL;
 	float2 Tex		:	TEXCOORD;
-	float3 Weights    : WEIGHTS;
+	float4 Weights    : WEIGHTS;
 	uint4 BoneIndices : BONEINDICES;
 };
 
@@ -38,17 +38,38 @@ struct VertexOut {
 	float3 PosW		:	POSITION;
 	float3 NormalW	:	NORMAL;
 	float2 Tex		:	TEXCOORD;
+	float4 DebugCol :	DEBUGCOL;
 };
 
 VertexOut VS( VertexIn vin ) {
 	VertexOut vout;
 
+	// Init array or else we get strange warnings about SV_POSITION
+	float weights[4] = { 0.f, 0.f, 0.f, 0.f };
+	weights[0] = vin.Weights.x;
+	weights[1] = vin.Weights.y;
+	weights[2] = vin.Weights.z;
+	weights[3] = 1.0f-weights[0]-weights[1]-weights[2];
+
+
+	// Vertex blending
+	float3 posL = float3(0.f, 0.f, 0.f);
+	float3 normalL = float3(0.f, 0.f, 0.f);
+	[unroll]
+	for( int i = 0; i<4; ++i ) {
+		posL += weights[i]*mul( float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]] ).xyz;
+		normalL += weights[i]*mul( float4(vin.PosL, 1.0f), (float3x3)gBoneTransforms[vin.BoneIndices[i]] );
+	}
+
+	//vout.DebugCol = float4(vin.PosL, 1.0f);
+	//vout.DebugCol = float4(gBoneTransforms[1]._11, gBoneTransforms[6]._11, gBoneTransforms[6]._13, 1.0f);
+
 	// Transform to world space
-	vout.PosW = mul( float4(vin.PosL, 1.0f), gWorld ).xyz;
-	vout.NormalW = vin.NormalL;// mul( vin.NormalL, (float3x3)gWorldInvTranspose );
+	vout.PosW = mul( float4(posL, 1.0f), gWorld ).xyz;
+	vout.NormalW = mul( normalL, (float3x3)gWorldInvTranspose );
 
 	// Transform to homogeneous clip space.
-	vout.PosH = mul( float4(vin.PosL, 1.0f), gWorldViewProj );
+	vout.PosH = mul( float4(posL, 1.0f), gWorldViewProj );
 
 	// Output vertex attributes for interpolation across triangle
 	vout.Tex = vin.Tex;
@@ -57,6 +78,8 @@ VertexOut VS( VertexIn vin ) {
 }
 
 float4 PS( VertexOut pin, uniform int gLightCount ) : SV_Target{
+
+	//return pin.DebugCol;
 
 	// Interpolating normal can unnormalize it
 	pin.NormalW = normalize( pin.NormalW );

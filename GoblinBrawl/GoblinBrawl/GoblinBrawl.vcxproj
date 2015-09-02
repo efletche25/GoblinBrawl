@@ -107,6 +107,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Skeleton.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Vertex.h" />
@@ -126,6 +127,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

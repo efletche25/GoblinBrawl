@@ -4,6 +4,7 @@
 #include <assert.h>
 #include "assimp/DefaultLogger.hpp"
 #include "Mesh.h"
+#include "Skeleton.h"
 
 ModelLoader::ModelLoader( ID3D11Device* device, std::string modelDir, std::string textureDir ) :
 device( device ),
@@ -42,6 +43,9 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	aiMesh* sceneMesh = scene->mMeshes[0];
 	CreateVertexBuffer( sceneMesh, type );
 	CreateIndexBuffer( sceneMesh->mFaces, sceneMesh->mNumFaces );
+	if( scene->HasAnimations() ) {
+		CreateSkeleton(sceneMesh->mBones, sceneMesh->mNumBones);
+	}
 	return true;
 }
 
@@ -50,6 +54,10 @@ Mesh* ModelLoader::GetMesh() {
 	mesh->SetVB( vb );
 	mesh->SetIB( ib, indexCount );
 	return mesh;
+}
+
+Skeleton* ModelLoader::GetSkeleton() {
+	return skeleton;
 }
 
 std::vector<PointLight> ModelLoader::GetPointLights() {
@@ -145,5 +153,29 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		SetVertices( device, count, vertData.data() );
 		break;
 	}
+	}
+}
+
+void ModelLoader::CreateSkeleton( aiBone** bones, int numBones ) {
+	skeleton = new Skeleton();
+	for( int i = 0; i<numBones; ++i ) {
+		Bone* newBone = new Bone();
+		aiBone* bone = bones[i];
+		newBone->idx = i; // plus one because the root is not in the bones array
+		newBone->name = bone->mName.data;
+		auto boneOffset = bone->mOffsetMatrix;
+		newBone->offset = XMMATRIX( 
+			boneOffset.a1, boneOffset.a2, boneOffset.a3, boneOffset.a4,
+			boneOffset.b1, boneOffset.b2, boneOffset.b3, boneOffset.b4,
+			boneOffset.c1, boneOffset.c2, boneOffset.c3, boneOffset.c4,
+			boneOffset.d1, boneOffset.d2, boneOffset.d3, boneOffset.d4 );
+		std::string parentName = scene->mRootNode->FindNode( bone->mName )->mParent->mName.data;
+		Bone* parentNode = skeleton->GetBoneByName( parentName );
+		if( parentNode!=nullptr ) {
+			newBone->parentIdx = skeleton->GetBoneByName( parentName )->idx;
+		} else {
+			newBone->parentIdx = -1;
+		}
+		skeleton->AddBone( newBone );
 	}
 }
