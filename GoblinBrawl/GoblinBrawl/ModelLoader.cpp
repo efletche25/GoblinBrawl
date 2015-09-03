@@ -24,6 +24,7 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	Assimp::DefaultLogger::get()->info( "Importing: "+file );
 	scene = importer.ReadFile( file,
 		//aiProcess_CalcTangentSpace|
+		aiProcess_ImproveCacheLocality|
 		aiProcess_MakeLeftHanded|
 		aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
@@ -44,7 +45,8 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	CreateVertexBuffer( sceneMesh, type );
 	CreateIndexBuffer( sceneMesh->mFaces, sceneMesh->mNumFaces );
 	if( scene->HasAnimations() ) {
-		CreateSkeleton(sceneMesh->mBones, sceneMesh->mNumBones);
+		CreateSkeleton( sceneMesh->mBones, sceneMesh->mNumBones );
+		CreateBoneHierarchy();
 	}
 	return true;
 }
@@ -132,14 +134,18 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
-			
+
 			BYTE boneIndices[4] = { 0, 0, 0, 0 };
 			float weights[4] = { 0, 0, 0, 0 };
 			int j = 0;
 			auto itlow = vertexBoneWeight.lower_bound( i );
 			auto itup = vertexBoneWeight.upper_bound( i );
+			assert( itlow!=itup ); // every vertex should have some influence
 			for( auto it = itlow; it!=itup; ++it ) {
-				assert(j<4); // each vertex should not be influenced by more than 4 bones
+				if( j>=4 ) {
+					break;
+				}
+				assert( j<4 ); // each vertex should not be influenced by more than 4 bones
 				boneIndices[j] = it->second.boneIndex;
 				weights[j] = it->second.weight;
 				++j;
@@ -148,7 +154,11 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 			vertData[i].BoneIndicies[1] = boneIndices[1];
 			vertData[i].BoneIndicies[2] = boneIndices[2];
 			vertData[i].BoneIndicies[3] = boneIndices[3];
-			vertData[i].Weights = XMFLOAT4(weights);
+			vertData[i].Weights = XMFLOAT4( weights );
+			fprintf( stdout, "Total Weight: %f\n", weights[0]+weights[1]+weights[2]+weights[3] );
+
+			assert( weights[0]+weights[1]+weights[2]+weights[3]<1.0001f );
+			assert( weights[0]+weights[1]+weights[2]+weights[3]>0.9999f );
 		}
 		SetVertices( device, count, vertData.data() );
 		break;
@@ -157,25 +167,152 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 }
 
 void ModelLoader::CreateSkeleton( aiBone** bones, int numBones ) {
+	XMMATRIX fbxScale = XMMatrixScaling( 0.01f, 0.01f, 0.01f );
+	XMMATRIX lefthandedConversion(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f );
+	XMMATRIX fbxConversionMatrix(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 0.f, 1.f );
+	XMMATRIX fbxQuatInverse(
+		0.f, -1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		-1.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 0.f, 0.f );
 	skeleton = new Skeleton();
 	for( int i = 0; i<numBones; ++i ) {
 		Bone* newBone = new Bone();
 		aiBone* bone = bones[i];
-		newBone->idx = i; // plus one because the root is not in the bones array
+		newBone->idx = i;
 		newBone->name = bone->mName.data;
 		auto boneOffset = bone->mOffsetMatrix;
-		newBone->offset = XMMATRIX( 
+		XMMATRIX convertedOffset = ConvertMatrix( boneOffset );
+		XMVECTOR determinant = XMMatrixDeterminant( convertedOffset );
+		XMMATRIX convertedOffsetInverse = XMMatrixInverse( &determinant, convertedOffset );
+
+		auto newBoneOffsetMatrix = XMMATRIX(
 			boneOffset.a1, boneOffset.a2, boneOffset.a3, boneOffset.a4,
 			boneOffset.b1, boneOffset.b2, boneOffset.b3, boneOffset.b4,
 			boneOffset.c1, boneOffset.c2, boneOffset.c3, boneOffset.c4,
 			boneOffset.d1, boneOffset.d2, boneOffset.d3, boneOffset.d4 );
-		std::string parentName = scene->mRootNode->FindNode( bone->mName )->mParent->mName.data;
-		Bone* parentNode = skeleton->GetBoneByName( parentName );
-		if( parentNode!=nullptr ) {
-			newBone->parentIdx = skeleton->GetBoneByName( parentName )->idx;
-		} else {
-			newBone->parentIdx = -1;
-		}
+		auto transNewBoneOffsetMatrix = XMMATRIX(
+			boneOffset.a1, boneOffset.b1, boneOffset.c1, boneOffset.d1,
+			boneOffset.a2, boneOffset.b2, boneOffset.c2, boneOffset.d2,
+			boneOffset.a3, boneOffset.b3, boneOffset.c3, boneOffset.d3,
+			boneOffset.a4, boneOffset.b4, boneOffset.c4, boneOffset.d4 );
+		XMMATRIX scale = XMMatrixScaling( 1.f, 1.f, 1.f );
+		XMMATRIX rotX = XMMatrixRotationRollPitchYaw( 0.f, 0.f, 0.f );
+		XMMATRIX translate = XMMatrixTranslation( 0.f, 0.f, 0.f );
+		XMMATRIX world = scale * rotX * translate;
+
+		XMVECTOR scaleDecomp;
+		XMVECTOR rotQuatDecomp;
+		XMVECTOR transDecomp;
+		bool x = XMMatrixDecompose( &scaleDecomp, &rotQuatDecomp, &transDecomp, transNewBoneOffsetMatrix );
+
+		XMVECTOR testRot = XMQuaternionRotationRollPitchYaw( -XM_PIDIV4, 0.f, 0.f );
+		testRot = XMQuaternionRotationRollPitchYaw( 0.f, -XM_PIDIV4, 0.f );
+		testRot = XMQuaternionRotationRollPitchYaw( 0.f, 0.f, -XM_PIDIV4 );
+		testRot = XMQuaternionRotationRollPitchYaw( -XM_PIDIV4, 0.f, -XM_PIDIV4 );
+		testRot = XMQuaternionRotationRollPitchYaw( -XM_PIDIV4, 0.f, XM_PIDIV4 );
+		testRot = XMQuaternionRotationRollPitchYaw( XM_PIDIV4, 0.f, -XM_PIDIV4 );
+		testRot = XMQuaternionRotationRollPitchYaw( XM_PIDIV4, 0.f, -XM_PIDIV4 );
+
+		XMMATRIX testMat = transNewBoneOffsetMatrix*fbxQuatInverse;
+		XMMATRIX testMat2 = fbxQuatInverse*transNewBoneOffsetMatrix;
+
+		XMVECTOR axis;
+		float angle;
+		XMQuaternionToAxisAngle( &axis, &angle, rotQuatDecomp );
+
+		XMVECTOR w_scaleDecomp;
+		XMVECTOR w_rotQuatDecomp;
+		XMVECTOR w_transDecomp;
+		x = XMMatrixDecompose( &w_scaleDecomp, &w_rotQuatDecomp, &w_transDecomp, world );
+
+		XMVECTOR quatInverse = XMQuaternionInverse( rotQuatDecomp );
+		XMVECTOR fbxQuatInverseVector = XMLoadFloat4( &XMFLOAT4( 0.5, 0.5, -0.5, 0.5 ) );
+		XMVECTOR quatFinal = XMQuaternionMultiply( rotQuatDecomp, fbxQuatInverseVector );
+
+		XMVECTOR zero = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 0.f ) );
+		XMMATRIX finalTransform = XMMatrixAffineTransformation( scaleDecomp, zero, XMQuaternionIdentity(), transDecomp );
+
+		newBoneOffsetMatrix = XMMatrixMultiply( newBoneOffsetMatrix, fbxQuatInverse );
+
+		newBone->offset = convertedOffset;
+
 		skeleton->AddBone( newBone );
 	}
+}
+
+void ModelLoader::CreateBoneHierarchy() {
+	aiNode* root = scene->mRootNode->FindNode( "Skeleton_Root" );
+	FindBoneChildren( root, -1 );
+}
+
+void ModelLoader::FindBoneChildren( aiNode* node, int parentIdx ) {
+	Bone* bone = skeleton->GetBoneByName( node->mName.data );
+	bone->parentIdx = parentIdx;
+	if( node->mNumChildren==0 ) { return; }
+	for( int i = 0; i<node->mNumChildren; ++i ) {
+		aiNode* childNode = node->mChildren[i];
+		std::string childName = childNode->mName.data;
+		Bone* childBone = skeleton->GetBoneByName( childName );
+		if( childBone==nullptr ) {
+			// Bones with no skin influence will be missing from the previous list
+			childBone = new Bone();
+			childBone->idx = skeleton->BoneCount();
+			childBone->name = childName;
+			XMMATRIX transform = ConvertMatrix( childNode->mTransformation );
+			XMMATRIX parentOffset = bone->offset;
+			childBone->offset = DirectX::XMMatrixMultiply( transform, parentOffset );
+			skeleton->AddBone( childBone );
+		}
+		bone->children.push_back( childBone );
+		FindBoneChildren( childNode, bone->idx );
+	}
+}
+
+DirectX::XMMATRIX XM_CALLCONV ModelLoader::ConvertMatrix( aiMatrix4x4 inMat ) {
+	/*DirectX::XMMATRIX outMat = XMMATRIX(
+		inMat.a1, inMat.a2, inMat.a3, inMat.a4,
+		inMat.b1, inMat.b2, inMat.b3, inMat.b4,
+		inMat.c1, inMat.c2, inMat.c3, inMat.c4,
+		inMat.d1, inMat.d2, inMat.d3, inMat.d4);*/
+	DirectX::XMMATRIX transposed = XMMATRIX(
+		inMat.a1, inMat.b1, inMat.c1, inMat.d1,
+		inMat.a2, inMat.b2, inMat.c2, inMat.d2,
+		inMat.a3, inMat.b3, inMat.c3, inMat.d3,
+		inMat.a4, inMat.b4, inMat.c4, inMat.d4 );
+	DirectX::XMMATRIX fbxConvertTranslate = XMMATRIX(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, -1.f, 0.f, 0.f,
+		0.f, 0.f, -1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f);
+
+	XMVECTOR scaleDecomp;
+	XMVECTOR rotQuatDecomp;
+	XMVECTOR transDecomp;
+	XMMatrixDecompose( &scaleDecomp, &rotQuatDecomp, &transDecomp, transposed );
+
+	XMMATRIX rotMat = XMMatrixRotationQuaternion(rotQuatDecomp);
+	XMMATRIX xRot = XMMatrixRotationX( XM_PIDIV2 );
+	XMMATRIX yRot = XMMatrixRotationY( 0 );
+	XMMATRIX zRot = XMMatrixRotationZ( 0 );
+	XMMATRIX rot = rotMat*xRot*zRot;
+
+	XMMATRIX scale = XMMatrixScalingFromVector( scaleDecomp );
+	XMMATRIX translate = XMMatrixTranslationFromVector( transDecomp );
+	XMMATRIX convertedTranslate = translate*fbxConvertTranslate;
+
+	//XMVECTOR zero = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 0.f ) );
+	//XMMATRIX finalTransform = XMMatrixAffineTransformation( scaleDecomp, zero, XMQuaternionIdentity(), transDecomp );
+	//XMMATRIX testTransform = fbxConvert*transposed;
+	XMMATRIX finalTransform = scale*rot*convertedTranslate;
+	
+	return finalTransform;
 }

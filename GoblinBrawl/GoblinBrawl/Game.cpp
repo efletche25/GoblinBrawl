@@ -399,6 +399,7 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating lighting" );
 		return false;
 	}
+	/*
 	if( !floor.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating floor" );
 		return false;
@@ -414,7 +415,7 @@ bool Game::LoadGameObjects() {
 	if( !firePlinth.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
-	}
+	}*/
 	if( !goblin.Init( &loader, d3DDevice ) ) {
 		fprintf( stderr, "Error initiating goblin" );
 		return false;
@@ -423,12 +424,12 @@ bool Game::LoadGameObjects() {
 }
 
 void Game::Update( float dt ) {
-	XMVECTOR camPos = XMVectorSet( 20.f, 12.f, 0.f, 1.f );
+	XMVECTOR camPos = XMVectorSet( 0.f, 4.f, -10.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
-	XMVECTOR goblinRot = XMVectorSet( 0.f, XM_PIDIV2, 0.f, 0.f );
+	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
 	camera.Update( camPos, goblinPos );
-	goblin.SetPos( goblinPos );
-	goblin.SetRot( goblinRot );
+	//goblin.SetPos( goblinPos );
+	//goblin.SetRot( goblinRot );
 	goblin.Update( dt );
 }
 
@@ -438,10 +439,10 @@ void Game::Draw() {
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
-	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
-	walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
-	lava.Draw( viewProj, d3DImmediateContext );
-	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	//floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	//walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	//lava.Draw( viewProj, d3DImmediateContext );
+	//firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 
 	swapChain->Present( 0, 0 );

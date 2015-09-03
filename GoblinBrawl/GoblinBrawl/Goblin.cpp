@@ -10,9 +10,8 @@
 #include "Skeleton.h"
 
 Goblin::Goblin() :
-mesh(nullptr),
-diffuseView(nullptr)
-{}
+mesh( nullptr ),
+diffuseView( nullptr ) {}
 
 Goblin::~Goblin() {
 	delete skeleton;
@@ -20,8 +19,8 @@ Goblin::~Goblin() {
 }
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
-	modelLoader->Load( "Goblin_Anim.fbx", Vertex::CHARACTER_SKINNED );
-	//modelLoader->Load( "goblin.lxo", Vertex::CHARACTER );
+	modelLoader->Load( "Test_Cube.fbx", Vertex::CHARACTER_SKINNED );
+	//modelLoader->Load( "Test_Cube.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
 		return false;
@@ -78,9 +77,17 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 
 void Goblin::Update( float dt ) {
 	XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
-	XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
-	XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.1f, 1.1f, 2.1f, 1.f ) );
-	skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Clavicle_R" );
+	//XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
+	XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.f, 1.f, 1.f, 1.f ) );
+
+	XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw( 0.f, -XM_PIDIV2/2, 0.f );
+	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Upper_Spine" );
+
+	rotQuat = XMQuaternionRotationRollPitchYaw( 0.f, XM_PIDIV2/2, 0.f );
+	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Neck" );
+
+	rotQuat = XMQuaternionRotationRollPitchYaw( -XM_PIDIV2, 0.f, 0.f );
+	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Elbow_L" );
 }
 
 void XM_CALLCONV Goblin::SetPos( FXMVECTOR _pos ) {
