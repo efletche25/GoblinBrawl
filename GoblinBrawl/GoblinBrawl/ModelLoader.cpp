@@ -164,18 +164,48 @@ void ModelLoader::CreateSkeleton( aiBone** bones, int numBones ) {
 		newBone->idx = i; // plus one because the root is not in the bones array
 		newBone->name = bone->mName.data;
 		auto boneOffset = bone->mOffsetMatrix;
-		newBone->offset = XMMATRIX( 
-			boneOffset.a1, boneOffset.a2, boneOffset.a3, boneOffset.a4,
-			boneOffset.b1, boneOffset.b2, boneOffset.b3, boneOffset.b4,
-			boneOffset.c1, boneOffset.c2, boneOffset.c3, boneOffset.c4,
-			boneOffset.d1, boneOffset.d2, boneOffset.d3, boneOffset.d4 );
-		std::string parentName = scene->mRootNode->FindNode( bone->mName )->mParent->mName.data;
-		Bone* parentNode = skeleton->GetBoneByName( parentName );
-		if( parentNode!=nullptr ) {
-			newBone->parentIdx = skeleton->GetBoneByName( parentName )->idx;
-		} else {
-			newBone->parentIdx = -1;
+		XMMATRIX convertedOffset = ConvertMatrix( boneOffset );
+		newBone->offset = convertedOffset;
+		skeleton->AddBone( newBone );
+	}
+}
+
+void ModelLoader::CreateBoneHierarchy() {
+	aiNode* root = scene->mRootNode->FindNode( "Skeleton_Root" );
+	FindBoneChildren( root, -1 );
+}
+
+void ModelLoader::FindBoneChildren( aiNode* node, int parentIdx ) {
+	Bone* bone = skeleton->GetBoneByName( node->mName.data );
+	bone->parentIdx = parentIdx;
+
+	DirectX::XMMATRIX transformMat = ConvertMatrix( node->mTransformation );
+	bone->localTransform = transformMat;
+	
+	if( node->mNumChildren==0 ) { return; }
+	for( int i = 0; i<node->mNumChildren; ++i ) {
+		aiNode* childNode = node->mChildren[i];
+		std::string childName = childNode->mName.data;
+		Bone* childBone = skeleton->GetBoneByName( childName );
+		if( childBone==nullptr ) {
+			// Bones with no skin influence will be missing from the previous list
+			childBone = new Bone();
+			childBone->idx = skeleton->BoneCount();
+			childBone->name = childName;
+			XMMATRIX transform = ConvertMatrix( childNode->mTransformation );
+			XMMATRIX parentOffset = bone->offset;
+			childBone->offset = DirectX::XMMatrixMultiply( transform, parentOffset );
+			skeleton->AddBone( childBone );
 		}
 		skeleton->AddBone( newBone );
 	}
+}
+
+DirectX::XMMATRIX XM_CALLCONV ModelLoader::ConvertMatrix( aiMatrix4x4 inMat ) {
+	DirectX::XMMATRIX transposed = XMMATRIX(
+		inMat.a1, inMat.b1, inMat.c1, inMat.d1,
+		inMat.a2, inMat.b2, inMat.c2, inMat.d2,
+		inMat.a3, inMat.b3, inMat.c3, inMat.d3,
+		inMat.a4, inMat.b4, inMat.c4, inMat.d4 );
+	return transposed;
 }

@@ -20,8 +20,7 @@ Goblin::~Goblin() {
 }
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
-	modelLoader->Load( "Goblin_Anim.fbx", Vertex::CHARACTER_SKINNED );
-	//modelLoader->Load( "goblin.lxo", Vertex::CHARACTER );
+	modelLoader->Load( "Goblin2.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
 		return false;
