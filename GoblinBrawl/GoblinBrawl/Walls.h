@@ -10,7 +10,7 @@ struct ID3D11ShaderResourceView;
 class ModelLoader;
 class Mesh;
 struct ID3D11DeviceContext;
-class ID3D11Device;
+struct ID3D11Device;
 
 class Walls {
 public:

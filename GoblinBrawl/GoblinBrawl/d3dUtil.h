@@ -1,3 +1,4 @@
+#pragma once
 #include<D3DX11.h>
 #include<dxErr.h>
 

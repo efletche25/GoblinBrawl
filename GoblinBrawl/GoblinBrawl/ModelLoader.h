@@ -6,7 +6,6 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 #include "Vertex.h"
-#include "d3dUtil.h"
 #include "Lighting.h"
 
 class Mesh;

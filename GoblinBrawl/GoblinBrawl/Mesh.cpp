@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Mesh.h"
-#include "d3dUtil.h"
 
 Mesh::Mesh() :
 vb( 0 ),

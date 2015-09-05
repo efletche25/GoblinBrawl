@@ -148,7 +148,10 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 			vertData[i].BoneIndicies[1] = boneIndices[1];
 			vertData[i].BoneIndicies[2] = boneIndices[2];
 			vertData[i].BoneIndicies[3] = boneIndices[3];
-			vertData[i].Weights = XMFLOAT4(weights);
+
+			vertData[i].Weights = XMFLOAT4( weights );
+			assert( weights[0]+weights[1]+weights[2]+weights[3]<1.0001f );
+			assert( weights[0]+weights[1]+weights[2]+weights[3]>0.9999f );
 		}
 		SetVertices( device, count, vertData.data() );
 		break;

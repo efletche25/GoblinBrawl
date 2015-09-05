@@ -13,6 +13,7 @@ namespace Vertex {
 	};
 	struct SimpleVertex {
 		XMFLOAT3	Pos;
+		XMFLOAT4	Color;
 	};
 	struct TerrainVertex {
 		XMFLOAT3	Pos;
@@ -35,7 +36,7 @@ namespace Vertex {
 
 class InputLayoutDesc {
 public:
-	static const D3D11_INPUT_ELEMENT_DESC SimpleVertexDesc[1];
+	static const D3D11_INPUT_ELEMENT_DESC SimpleVertexDesc[2];
 	static const D3D11_INPUT_ELEMENT_DESC TerrainVertexDesc[3];
 	static const D3D11_INPUT_ELEMENT_DESC CharacterVertexDesc[3];
 	static const D3D11_INPUT_ELEMENT_DESC CharacterSkinnedVertexDesc[5];

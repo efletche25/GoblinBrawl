@@ -3,8 +3,6 @@
 #include "ModelLoader.h"
 #include "Vertex.h"
 #include "Mesh.h"
-#include "d3dUtil.h"
-#include "d3dx11effect.h"
 #include "Effects.h"
 #include "MathUtils.h"
 #include "Skeleton.h"

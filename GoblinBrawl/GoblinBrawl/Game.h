@@ -9,6 +9,7 @@
 #include "FirePlinth.h"
 #include "Goblin.h"
 #include "Lighting.h"
+#include "PhysicsWorld.h"
 
 #define MAX_LOADSTRING 100
 
@@ -55,5 +56,6 @@ private:
 	FirePlinth				firePlinth;
 	Lighting				lighting;
 	Goblin					goblin;
+	PhysicsWorld			physicsWorld;
 };
 

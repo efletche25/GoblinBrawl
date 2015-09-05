@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "resource.h"
-#include "d3dUtil.h"
 #include <assert.h>
 #include "Strsafe.h"
 #include <sstream>
@@ -56,6 +55,7 @@ Game::~Game() {
 }
 
 bool Game::Init() {
+	physicsWorld.init();
 	camera = Camera();
 	if( !InitMainWindow() ) {
 		return false;
@@ -65,6 +65,7 @@ bool Game::Init() {
 	}
 	Effects::InitAll( d3DDevice );
 	InputLayouts::InitAll( d3DDevice );
+	
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -393,6 +394,7 @@ float Game::AspectRatio() {
 }
 
 bool Game::LoadGameObjects() {
+	physicsWorld.init();
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
 	lighting = Lighting();
 	if( !lighting.Init( &loader ) ) {

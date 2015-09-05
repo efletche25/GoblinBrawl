@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "d3dUtil.h"
 
 Effect::Effect( ID3D11Device* device, const std::wstring& filename ) :
 fx( nullptr ) {

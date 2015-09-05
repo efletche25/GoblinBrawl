@@ -4,6 +4,7 @@ cbuffer cbPerObject {
 
 struct VertexIn {
 	float3 PosL  : POSITION;
+	float4 Color : COLOR;
 };
 
 struct VertexOut {
@@ -14,12 +15,9 @@ struct VertexOut {
 VertexOut VS( VertexIn vin ) {
 	VertexOut vout;
 
-	// Transform to homogeneous clip space.
 	vout.PosH = mul( float4(vin.PosL, 1.0f), gWorldViewProj );
 
-	float3 nPos = normalize( vin.PosL );
-	vout.Color = float4(nPos, 1.0f);
-	//vout.Color = float4(1.f, 0.f, 0.f, 1.f);
+	vout.Color = vin.Color;
 
 	return vout;
 }
