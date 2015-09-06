@@ -56,7 +56,7 @@ VertexOut VS( VertexIn vin ) {
 	// Vertex blending
 	float3 posL = float3(0.f, 0.f, 0.f);
 	float3 normalL = float3(0.f, 0.f, 0.f);
-	[unroll]
+	//[unroll]
 	for( int i = 0; i<4; ++i ) {
 		posL += weights[i]*mul( float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]] ).xyz;
 		normalL += weights[i]*mul( vin.NormalL, (float3x3)gBoneTransforms[vin.BoneIndices[i]] );
