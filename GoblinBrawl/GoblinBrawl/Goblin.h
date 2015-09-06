@@ -21,6 +21,7 @@ public:
 	void Update(float dt);
 	void XM_CALLCONV Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context );
 	void XM_CALLCONV SetPos( FXMVECTOR pos );
+	FXMVECTOR XM_CALLCONV getPos();
 	void XM_CALLCONV SetRot( FXMVECTOR rot );
 private:
 	Mesh*							mesh;

@@ -10,6 +10,8 @@
 #include "Lighting.h"
 #include "PhysicsWorld.h"
 
+class PhysicsDebugDrawer;
+
 #define MAX_LOADSTRING 100
 
 class Game {
@@ -56,5 +58,7 @@ private:
 	Lighting				lighting;
 	Goblin					goblin;
 	PhysicsWorld			physicsWorld;
+	PhysicsDebugDrawer*		physicsDebugDrawer;
+	
 };
 

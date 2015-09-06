@@ -97,6 +97,14 @@ void XM_CALLCONV Goblin::SetPos( FXMVECTOR _pos ) {
 	pos = XMMatrixTranslationFromVector( _pos );
 }
 
+FXMVECTOR XM_CALLCONV Goblin::getPos() {
+	XMVECTOR outScale;
+	XMVECTOR outRotQuat;
+	XMVECTOR outTrans;
+	XMMatrixDecompose( &outScale, &outRotQuat, &outTrans, pos );
+	return outTrans;
+}
+
 void XM_CALLCONV Goblin::SetRot( FXMVECTOR _pos ) {
 	rot = XMMatrixRotationRollPitchYawFromVector( _pos );
 }

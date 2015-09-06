@@ -8,8 +8,10 @@
 #include "Floor.h"
 #include "MyEffects.h"
 #include "Vertex.h"
+#include "PhysicsDebugDrawer.h"
 
 #define DISPLAY_FPS
+#define PHYSICS_DEBUG_MODE
 
 namespace {
 	// This is just used to forward Windows messages from a global window
@@ -37,7 +39,8 @@ swapChain( nullptr ),
 depthStencilBuffer( nullptr ),
 renderTargetView( nullptr ),
 depthStencilView( nullptr ),
-paused( false ) {
+paused( false ),
+physicsDebugDrawer(nullptr) {
 	ZeroMemory( &screenViewport, sizeof( D3D11_VIEWPORT ) );
 	game = this;
 }
@@ -395,6 +398,10 @@ float Game::AspectRatio() {
 
 bool Game::LoadGameObjects() {
 	physicsWorld.init();
+#ifdef PHYSICS_DEBUG_MODE
+	physicsDebugDrawer = new PhysicsDebugDrawer();
+	physicsDebugDrawer->Init( d3DImmediateContext );
+#endif
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
 	lighting = Lighting();
 	if( !lighting.Init( &loader ) ) {
@@ -429,6 +436,7 @@ void Game::Update( float dt ) {
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
 	camera.Update( camPos, goblinPos );
+	
 	goblin.SetPos( goblinPos );
 	goblin.SetRot( goblinRot );
 	goblin.Update( dt );
@@ -445,6 +453,15 @@ void Game::Draw() {
 	lava.Draw( viewProj, d3DImmediateContext );
 	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
-
+#ifdef PHYSICS_DEBUG_MODE
+	assert( physicsDebugDrawer!=nullptr );
+	XMFLOAT3 from;
+	XMStoreFloat3( &from, goblin.getPos() );
+	XMFLOAT3 to = XMFLOAT3( from.x, from.y+100.f, from.z );
+	XMFLOAT4 color = XMFLOAT4( 1.f, 0.f, 0.f, 1.0f );
+	physicsDebugDrawer->Begin( viewProj );
+	physicsDebugDrawer->drawLine( from, to, color );
+	physicsDebugDrawer->End();
+#endif
 	swapChain->Present( 0, 0 );
 }
