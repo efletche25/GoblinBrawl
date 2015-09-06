@@ -9,9 +9,8 @@
 #include "WICTextureLoader.h"
 
 Goblin::Goblin() :
-mesh(nullptr),
-diffuseView(nullptr)
-{}
+mesh( nullptr ),
+diffuseView( nullptr ) {}
 
 Goblin::~Goblin() {
 	delete skeleton;
@@ -75,10 +74,23 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 }
 
 void Goblin::Update( float dt ) {
-	XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
-	XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
-	XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.1f, 1.1f, 2.1f, 1.f ) );
-	skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Clavicle_R" );
+	//XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
+	//XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
+	//XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.f, 1.f, 1.f, 1.f ) );
+
+	XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw( 0.f, -XM_PIDIV2/2, 0.f );
+	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Upper_Spine" );
+
+	rotQuat = XMQuaternionRotationRollPitchYaw( 0.f, XM_PIDIV2/2, 0.f );
+	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Neck" );
+
+	rotQuat = XMQuaternionRotationRollPitchYaw( -XM_PIDIV2, 0.f, 0.f );
+	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Elbow_L" );
+	Bone* elbow = skeleton->GetBoneByName( "Skeleton_Lower_Spine" );
+	XMMATRIX rot = XMMatrixRotationZ( XM_PI/1800.f );
+	XMMATRIX elbowTransform = elbow->localTransform;
+	XMMATRIX bentElbow = elbowTransform*rot;
+	elbow->localTransform = bentElbow;
 }
 
 void XM_CALLCONV Goblin::SetPos( FXMVECTOR _pos ) {

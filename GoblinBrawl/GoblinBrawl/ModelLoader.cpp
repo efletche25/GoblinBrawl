@@ -24,6 +24,7 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	Assimp::DefaultLogger::get()->info( "Importing: "+file );
 	scene = importer.ReadFile( file,
 		//aiProcess_CalcTangentSpace|
+		aiProcess_ImproveCacheLocality|
 		aiProcess_MakeLeftHanded|
 		aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
@@ -44,7 +45,8 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	CreateVertexBuffer( sceneMesh, type );
 	CreateIndexBuffer( sceneMesh->mFaces, sceneMesh->mNumFaces );
 	if( scene->HasAnimations() ) {
-		CreateSkeleton(sceneMesh->mBones, sceneMesh->mNumBones);
+		CreateSkeleton( sceneMesh->mBones, sceneMesh->mNumBones );
+		CreateBoneHierarchy();
 	}
 	return true;
 }
@@ -132,14 +134,18 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
-			
+
 			BYTE boneIndices[4] = { 0, 0, 0, 0 };
 			float weights[4] = { 0, 0, 0, 0 };
 			int j = 0;
 			auto itlow = vertexBoneWeight.lower_bound( i );
 			auto itup = vertexBoneWeight.upper_bound( i );
+			assert( itlow!=itup ); // every vertex should have some influence
 			for( auto it = itlow; it!=itup; ++it ) {
-				assert(j<4); // each vertex should not be influenced by more than 4 bones
+				if( j>=4 ) {
+					break;
+				}
+				assert( j<4 ); // each vertex should not be influenced by more than 4 bones
 				boneIndices[j] = it->second.boneIndex;
 				weights[j] = it->second.weight;
 				++j;
@@ -148,7 +154,6 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 			vertData[i].BoneIndicies[1] = boneIndices[1];
 			vertData[i].BoneIndicies[2] = boneIndices[2];
 			vertData[i].BoneIndicies[3] = boneIndices[3];
-
 			vertData[i].Weights = XMFLOAT4( weights );
 			assert( weights[0]+weights[1]+weights[2]+weights[3]<1.0001f );
 			assert( weights[0]+weights[1]+weights[2]+weights[3]>0.9999f );
@@ -164,7 +169,7 @@ void ModelLoader::CreateSkeleton( aiBone** bones, int numBones ) {
 	for( int i = 0; i<numBones; ++i ) {
 		Bone* newBone = new Bone();
 		aiBone* bone = bones[i];
-		newBone->idx = i; // plus one because the root is not in the bones array
+		newBone->idx = i;
 		newBone->name = bone->mName.data;
 		auto boneOffset = bone->mOffsetMatrix;
 		XMMATRIX convertedOffset = ConvertMatrix( boneOffset );
@@ -200,7 +205,8 @@ void ModelLoader::FindBoneChildren( aiNode* node, int parentIdx ) {
 			childBone->offset = DirectX::XMMatrixMultiply( transform, parentOffset );
 			skeleton->AddBone( childBone );
 		}
-		skeleton->AddBone( newBone );
+		bone->children.push_back( childBone );
+		FindBoneChildren( childNode, bone->idx );
 	}
 }
 
