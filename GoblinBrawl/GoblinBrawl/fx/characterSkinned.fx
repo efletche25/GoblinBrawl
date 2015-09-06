@@ -51,6 +51,7 @@ VertexOut VS( VertexIn vin ) {
 	weights[2] = vin.Weights.z;
 	weights[3] = 1.0f-weights[0]-weights[1]-weights[2];
 
+	vin.NormalL = normalize( vin.NormalL.zyx );
 
 	// Vertex blending
 	float3 posL = float3(0.f, 0.f, 0.f);
@@ -58,15 +59,14 @@ VertexOut VS( VertexIn vin ) {
 	[unroll]
 	for( int i = 0; i<4; ++i ) {
 		posL += weights[i]*mul( float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]] ).xyz;
-		normalL += weights[i]*mul( float4(vin.PosL, 1.0f), (float3x3)gBoneTransforms[vin.BoneIndices[i]] );
+		normalL += weights[i]*mul( vin.NormalL, (float3x3)gBoneTransforms[vin.BoneIndices[i]] );
 	}
-
-	//vout.DebugCol = float4(vin.PosL, 1.0f);
-	//vout.DebugCol = float4(gBoneTransforms[1]._11, gBoneTransforms[6]._11, gBoneTransforms[6]._13, 1.0f);
+	
+	vout.DebugCol = float4(normalL, 1.f);
 
 	// Transform to world space
 	vout.PosW = mul( float4(posL, 1.0f), gWorld ).xyz;
-	vout.NormalW = mul( normalL, (float3x3)gWorldInvTranspose );
+	vout.NormalW = normalL.xyz;//mul( normalL, (float3x3)gWorldInvTranspose );
 
 	// Transform to homogeneous clip space.
 	vout.PosH = mul( float4(posL, 1.0f), gWorldViewProj );
@@ -107,7 +107,7 @@ float4 PS( VertexOut pin, uniform int gLightCount ) : SV_Target{
 		spec += S;
 	}
 	
-	float4 litColor = texColor * (ambient + diffuse) + spec;
+	float4 litColor = texColor * (ambient+diffuse)+spec;
 	litColor.a = gMaterial.Diffuse.a;
 
 	//return float4(pin.NormalW, 1.0f);
