@@ -41,9 +41,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)lib;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,11 +52,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/DirectXTC;$(ProjectDir)Bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dx11d.lib;D3DCompiler.lib;dxerr.lib;dxgi.lib;dxguid.lib;assimp-vc120-mtd.lib;Effects11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;D3DCompiler.lib;dxgi.lib;dxguid.lib;Effects11d.lib;assimp-vc120-mtd.lib;DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)lib\*.dll $(TargetDir) &amp;
@@ -92,15 +92,32 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="d3dUtil.h" />
-    <ClInclude Include="d3dx11effect.h" />
-    <ClInclude Include="Effects.h" />
+    <ClInclude Include="dxErrUtil.h" />
+    <ClInclude Include="MyEffects.h" />
     <ClInclude Include="FirePlinth.h" />
     <ClInclude Include="Floor.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Goblin.h" />
     <ClInclude Include="GoblinBrawl.h" />
+    <ClInclude Include="include\DirectXTC\Audio.h" />
+    <ClInclude Include="include\DirectXTC\CommonStates.h" />
+    <ClInclude Include="include\DirectXTC\DDSTextureLoader.h" />
+    <ClInclude Include="include\DirectXTC\DirectXHelpers.h" />
+    <ClInclude Include="include\DirectXTC\Effects.h" />
+    <ClInclude Include="include\DirectXTC\GamePad.h" />
+    <ClInclude Include="include\DirectXTC\GeometricPrimitive.h" />
+    <ClInclude Include="include\DirectXTC\Keyboard.h" />
+    <ClInclude Include="include\DirectXTC\Model.h" />
+    <ClInclude Include="include\DirectXTC\Mouse.h" />
+    <ClInclude Include="include\DirectXTC\PrimitiveBatch.h" />
+    <ClInclude Include="include\DirectXTC\ScreenGrab.h" />
+    <ClInclude Include="include\DirectXTC\SimpleMath.h" />
+    <ClInclude Include="include\DirectXTC\SpriteBatch.h" />
+    <ClInclude Include="include\DirectXTC\SpriteFont.h" />
+    <ClInclude Include="include\DirectXTC\VertexTypes.h" />
+    <ClInclude Include="include\DirectXTC\WICTextureLoader.h" />
+    <ClInclude Include="include\DirectXTC\XboxDDSTextureLoader.h" />
     <ClInclude Include="Lava.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="MathUtils.h" />
@@ -115,7 +132,8 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="dxErrUtil.cpp" />
+    <ClCompile Include="MyEffects.cpp" />
     <ClCompile Include="FirePlinth.cpp" />
     <ClCompile Include="Floor.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -178,6 +196,9 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)fx\%(Filename).fxo</ObjectFileOutput>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\DirectXTC\SimpleMath.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

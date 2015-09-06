@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Vertex.h"
-#include "Effects.h"
+#include "MyEffects.h"
 
 const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::SimpleVertexDesc[] =
 {
@@ -37,19 +37,19 @@ void InputLayouts::InitAll( ID3D11Device* device ) {
 	D3DX11_PASS_DESC passDesc;
 
 	//Simple
-	Effects::SimpleFX->simpleTechnique->GetPassByIndex( 0 )->GetDesc( &passDesc );
+	MyEffects::SimpleFX->simpleTechnique->GetPassByIndex( 0 )->GetDesc( &passDesc );
 	HR( device->CreateInputLayout( InputLayoutDesc::SimpleVertexDesc, 2, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &Simple ) );
 
 	//Terrain
-	Effects::TerrainFX->terrainTechnique->GetPassByIndex( 0 )->GetDesc( &passDesc );
+	MyEffects::TerrainFX->terrainTechnique->GetPassByIndex( 0 )->GetDesc( &passDesc );
 	HR( device->CreateInputLayout( InputLayoutDesc::TerrainVertexDesc, 3, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &Terrain ) );
 
 	//Character
-	Effects::CharacterFX->characterLight5Tech->GetPassByIndex( 0 )->GetDesc( &passDesc );
+	MyEffects::CharacterFX->characterLight5Tech->GetPassByIndex( 0 )->GetDesc( &passDesc );
 	HR( device->CreateInputLayout( InputLayoutDesc::CharacterVertexDesc, 3, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &Character ) );
 
 	//Character Skinned
-	Effects::CharacterSkinnedFX->characterSkinnedLight5Tech->GetPassByIndex( 0 )->GetDesc( &passDesc );
+	MyEffects::CharacterSkinnedFX->characterSkinnedLight5Tech->GetPassByIndex( 0 )->GetDesc( &passDesc );
 	HR( device->CreateInputLayout( InputLayoutDesc::CharacterSkinnedVertexDesc, 5, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &CharacterSkinned ) );
 }
 

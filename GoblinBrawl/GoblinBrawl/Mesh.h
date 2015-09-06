@@ -1,5 +1,4 @@
 #pragma once
-#include "D3D11.h"
 class Mesh {
 public:
 	Mesh();

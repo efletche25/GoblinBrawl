@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "PhysicsDebugDrawer.h"
 
-/*
 PhysicsDebugDrawer::PhysicsDebugDrawer() : ctx(nullptr) 
 {}
 
@@ -22,4 +21,4 @@ void PhysicsDebugDrawer::Begin() {
 void PhysicsDebugDrawer::End() {
 	ctx->OMSetBlendState( oldBlendState, oldBlendFactor, 0xffffffff );
 	ctx->OMSetDepthStencilState( oldStencilState, oldStencilRef );
-}*/
+}

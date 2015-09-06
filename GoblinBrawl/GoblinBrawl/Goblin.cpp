@@ -3,9 +3,10 @@
 #include "ModelLoader.h"
 #include "Vertex.h"
 #include "Mesh.h"
-#include "Effects.h"
+#include "MyEffects.h"
 #include "MathUtils.h"
 #include "Skeleton.h"
+#include "WICTextureLoader.h"
 
 Goblin::Goblin() :
 mesh(nullptr),
@@ -27,7 +28,7 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 	if( skeleton==nullptr ) {
 		return false;
 	}
-	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/goblin_color.tif", NULL, NULL, &diffuseView, NULL ) );
+	HR( CreateWICTextureFromFile( device, L"./art/textures/goblin_color.tif", NULL, &diffuseView, NULL ) );
 	mat.Ambient = XMFLOAT4( 0.02f, 0.3f, 0.5f, 1.0f );
 	mat.Diffuse = XMFLOAT4( 0.8f, 0.8f, 0.8f, 1.0f );
 	mat.Specular = XMFLOAT4( 0.3f, 0.3f, 0.3f, 32.0f );
@@ -53,18 +54,18 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 	XMMATRIX worldInvTranspose = MathUtils::InverseTranspose( world );
 	XMMATRIX worldViewProj = world*viewProj;
 
-	Effects::CharacterSkinnedFX->SetWorld( world );
-	Effects::CharacterSkinnedFX->SetWorldInvTranspose( worldInvTranspose );
-	Effects::CharacterSkinnedFX->SetWorldViewProj( worldViewProj );
-	Effects::CharacterSkinnedFX->SetDiffuseMap( diffuseView );
-	Effects::CharacterSkinnedFX->SetEyePosW( cameraPos );
-	Effects::CharacterSkinnedFX->SetPointLights( pointLights.data() );
-	Effects::CharacterSkinnedFX->SetMaterial( mat );
+	MyEffects::CharacterSkinnedFX->SetWorld( world );
+	MyEffects::CharacterSkinnedFX->SetWorldInvTranspose( worldInvTranspose );
+	MyEffects::CharacterSkinnedFX->SetWorldViewProj( worldViewProj );
+	MyEffects::CharacterSkinnedFX->SetDiffuseMap( diffuseView );
+	MyEffects::CharacterSkinnedFX->SetEyePosW( cameraPos );
+	MyEffects::CharacterSkinnedFX->SetPointLights( pointLights.data() );
+	MyEffects::CharacterSkinnedFX->SetMaterial( mat );
 	auto a = skeleton->GetFinalTransforms();
 	auto b = skeleton->BoneCount();
-	Effects::CharacterSkinnedFX->SetBoneTransforms( a, b );
+	MyEffects::CharacterSkinnedFX->SetBoneTransforms( a, b );
 
-	ID3DX11EffectTechnique* tech = Effects::CharacterSkinnedFX->characterSkinnedLight5Tech;
+	ID3DX11EffectTechnique* tech = MyEffects::CharacterSkinnedFX->characterSkinnedLight5Tech;
 	D3DX11_TECHNIQUE_DESC td;
 	tech->GetDesc( &td );
 	for( UINT p = 0; p<td.Passes; ++p ) {

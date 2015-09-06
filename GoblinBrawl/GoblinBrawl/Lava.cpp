@@ -3,8 +3,9 @@
 #include "ModelLoader.h"
 #include "Vertex.h"
 #include "Mesh.h"
-#include "Effects.h"
+#include "MyEffects.h"
 #include "MathUtils.h"
+#include "WICTextureLoader.h"
 
 Lava::Lava() :
 mesh( nullptr ),
@@ -18,7 +19,7 @@ bool Lava::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 	if( !mesh ) {
 		return false;
 	}
-	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/lava_color.tif", NULL, NULL, &diffuseView, NULL ) );
+	HR( CreateWICTextureFromFile( device, L"./art/textures/lava_color.tif",  NULL, &diffuseView, NULL ) );
 	return true;
 }
 
@@ -35,12 +36,12 @@ void XM_CALLCONV Lava::Draw( FXMMATRIX viewProj, ID3D11DeviceContext* context ) 
 	XMMATRIX worldInvTranspose = MathUtils::InverseTranspose( world );
 	XMMATRIX worldViewProj = world*viewProj;
 
-	Effects::TerrainFX->SetWorld( world );
-	Effects::TerrainFX->SetWorldInvTranspose( worldInvTranspose );
-	Effects::TerrainFX->SetWorldViewProj( worldViewProj );
-	Effects::TerrainFX->SetDiffuseMap( diffuseView );
+	MyEffects::TerrainFX->SetWorld( world );
+	MyEffects::TerrainFX->SetWorldInvTranspose( worldInvTranspose );
+	MyEffects::TerrainFX->SetWorldViewProj( worldViewProj );
+	MyEffects::TerrainFX->SetDiffuseMap( diffuseView );
 
-	ID3DX11EffectTechnique* tech = Effects::TerrainFX->terrainTechnique;
+	ID3DX11EffectTechnique* tech = MyEffects::TerrainFX->terrainTechnique;
 	D3DX11_TECHNIQUE_DESC td;
 	tech->GetDesc( &td );
 	for( UINT p = 0; p<td.Passes; ++p ) {

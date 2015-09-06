@@ -21,6 +21,13 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-#include "d3dUtil.h"
+
+#if defined(_XBOX_ONE) && defined(_TITLE)
+#include <d3d11_x.h>
+#else
+#include <d3d11_1.h>
+#endif
+
+#include "dxErrUtil.h"
 
 // TODO: reference additional headers your program requires here

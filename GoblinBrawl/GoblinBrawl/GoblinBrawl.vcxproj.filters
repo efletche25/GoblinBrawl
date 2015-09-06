@@ -19,6 +19,9 @@
     <Filter Include="Bullet">
       <UniqueIdentifier>{b503cdef-f36d-46cb-a3d4-4dd8267dcaff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DirectXTC">
+      <UniqueIdentifier>{1c897b63-dddb-4330-a6b0-599966c5ac3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -39,9 +42,6 @@
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="d3dUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -58,12 +58,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="d3dx11effect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Effects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MathUtils.h">
@@ -795,6 +789,66 @@
     <ClInclude Include="PhysicsDebugDrawer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\DirectXTC\Audio.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\CommonStates.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\DDSTextureLoader.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\DirectXHelpers.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\Effects.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\GamePad.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\GeometricPrimitive.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\Keyboard.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\Model.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\Mouse.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\PrimitiveBatch.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\ScreenGrab.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\SimpleMath.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\SpriteBatch.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\SpriteFont.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\VertexTypes.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\WICTextureLoader.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectXTC\XboxDDSTextureLoader.h">
+      <Filter>DirectXTC</Filter>
+    </ClInclude>
+    <ClInclude Include="MyEffects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dxErrUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -822,9 +876,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Vertex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Effects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MathUtils.cpp">
@@ -1268,6 +1319,12 @@
     <ClCompile Include="PhysicsDebugDrawer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MyEffects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dxErrUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GoblinBrawl.rc">
@@ -1301,5 +1358,10 @@
     <FxCompile Include="fx\characterSkinned.fx">
       <Filter>fx</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\DirectXTC\SimpleMath.inl">
+      <Filter>DirectXTC</Filter>
+    </None>
   </ItemGroup>
 </Project>

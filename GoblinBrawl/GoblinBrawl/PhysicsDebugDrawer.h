@@ -1,9 +1,7 @@
 #pragma once
-//#include <D3D11.h>
-//#include <PrimitiveBatch.h>
-//#include "Vertex.h"
+#include <PrimitiveBatch.h>
+#include "Vertex.h"
 
-/*
 class PhysicsDebugDrawer {
 public:
 	PhysicsDebugDrawer();
@@ -23,4 +21,4 @@ private:
 	std::unique_ptr<
 		DirectX::PrimitiveBatch<
 		Vertex::SimpleVertex>>				lineBatch;
-};*/
+};

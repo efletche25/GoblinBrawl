@@ -6,7 +6,7 @@
 #include <sstream>
 #include "ModelLoader.h"
 #include "Floor.h"
-#include "Effects.h"
+#include "MyEffects.h"
 #include "Vertex.h"
 
 #define DISPLAY_FPS
@@ -63,7 +63,7 @@ bool Game::Init() {
 	if( !InitDirect3D() ) {
 		return false;
 	}
-	Effects::InitAll( d3DDevice );
+	MyEffects::InitAll( d3DDevice );
 	InputLayouts::InitAll( d3DDevice );
 	
 	if( !LoadGameObjects() ) {

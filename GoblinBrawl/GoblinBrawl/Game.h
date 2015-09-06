@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <d3dx11.h>
 #include "GameTimer.h"
 #include "Camera.h"
 #include "Floor.h"

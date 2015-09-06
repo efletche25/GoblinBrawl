@@ -3,8 +3,9 @@
 #include "ModelLoader.h"
 #include "Vertex.h"
 #include "Mesh.h"
-#include "Effects.h"
+#include "MyEffects.h"
 #include "MathUtils.h"
+#include "WICTextureLoader.h"
 
 FirePlinth::FirePlinth() : 
 mesh (nullptr),
@@ -19,7 +20,7 @@ bool FirePlinth::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 	if( !mesh ) {
 		return false;
 	}
-	HR( D3DX11CreateShaderResourceViewFromFile( device, L"./art/textures/fire_plinth_color.tif", NULL, NULL, &diffuseView, NULL ) );
+	HR( CreateWICTextureFromFile( device, L"./art/textures/fire_plinth_color.tif", NULL, &diffuseView, NULL ) );
 	mat.Ambient = XMFLOAT4( 0.02f, 0.3f, 0.5f, 1.0f );
 	mat.Diffuse = XMFLOAT4( 0.8f, 0.8f, 0.8f, 1.0f );
 	mat.Specular = XMFLOAT4( 0.3f, 0.3f, 0.3f, 32.0f );
@@ -39,15 +40,15 @@ void XM_CALLCONV FirePlinth::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std:
 	XMMATRIX worldInvTranspose = MathUtils::InverseTranspose( world );
 	XMMATRIX worldViewProj = world*viewProj;
 
-	Effects::StaticGeomFX->SetWorld( world );
-	Effects::StaticGeomFX->SetWorldInvTranspose( worldInvTranspose );
-	Effects::StaticGeomFX->SetWorldViewProj( worldViewProj );
-	Effects::StaticGeomFX->SetDiffuseMap( diffuseView );
-	Effects::StaticGeomFX->SetEyePosW( cameraPos );
-	Effects::StaticGeomFX->SetPointLights( pointLights.data() );
-	Effects::StaticGeomFX->SetMaterial( mat );
+	MyEffects::StaticGeomFX->SetWorld( world );
+	MyEffects::StaticGeomFX->SetWorldInvTranspose( worldInvTranspose );
+	MyEffects::StaticGeomFX->SetWorldViewProj( worldViewProj );
+	MyEffects::StaticGeomFX->SetDiffuseMap( diffuseView );
+	MyEffects::StaticGeomFX->SetEyePosW( cameraPos );
+	MyEffects::StaticGeomFX->SetPointLights( pointLights.data() );
+	MyEffects::StaticGeomFX->SetMaterial( mat );
 
-	ID3DX11EffectTechnique* tech = Effects::StaticGeomFX->staticGeomLight5Tech;
+	ID3DX11EffectTechnique* tech = MyEffects::StaticGeomFX->staticGeomLight5Tech;
 	D3DX11_TECHNIQUE_DESC td;
 	tech->GetDesc( &td );
 	for( UINT p = 0; p<td.Passes; ++p ) {
