@@ -8,10 +8,9 @@
 #include "Floor.h"
 #include "MyEffects.h"
 #include "Vertex.h"
-#include "PhysicsDebugDrawer.h"
+#include "PhysicsWorld.h"
 
 #define DISPLAY_FPS
-#define PHYSICS_DEBUG_MODE
 
 namespace {
 	// This is just used to forward Windows messages from a global window
@@ -39,8 +38,7 @@ swapChain( nullptr ),
 depthStencilBuffer( nullptr ),
 renderTargetView( nullptr ),
 depthStencilView( nullptr ),
-paused( false ),
-physicsDebugDrawer(nullptr) {
+paused( false ) {
 	ZeroMemory( &screenViewport, sizeof( D3D11_VIEWPORT ) );
 	game = this;
 }
@@ -58,7 +56,6 @@ Game::~Game() {
 }
 
 bool Game::Init() {
-	physicsWorld.init();
 	camera = Camera();
 	if( !InitMainWindow() ) {
 		return false;
@@ -68,7 +65,8 @@ bool Game::Init() {
 	}
 	MyEffects::InitAll( d3DDevice );
 	InputLayouts::InitAll( d3DDevice );
-	
+	physicsWorld = new PhysicsWorld();
+	physicsWorld->init( d3DImmediateContext );
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -397,12 +395,7 @@ float Game::AspectRatio() {
 }
 
 bool Game::LoadGameObjects() {
-	physicsWorld.init();
-#ifdef PHYSICS_DEBUG_MODE
-	physicsDebugDrawer = new PhysicsDebugDrawer();
-	physicsDebugDrawer->Init( d3DImmediateContext );
-#endif
-	physicsWorld.setupDemo();
+	physicsWorld->setupDemo();
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
 	lighting = Lighting();
 	if( !lighting.Init( &loader ) ) {
@@ -433,8 +426,8 @@ bool Game::LoadGameObjects() {
 }
 
 void Game::Update( float dt ) {
-	physicsWorld.runDemo();
-	XMVECTOR camPos = XMVectorSet( 0.f, 4.f, -15.f, 1.f );
+	physicsWorld->runDemo();
+	XMVECTOR camPos = XMVectorSet( 300.f, 4.f, -15.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
 	camera.Update( camPos, goblinPos );
@@ -456,14 +449,7 @@ void Game::Draw() {
 	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 #ifdef PHYSICS_DEBUG_MODE
-	assert( physicsDebugDrawer!=nullptr );
-	XMFLOAT3 from;
-	XMStoreFloat3( &from, goblin.getPos() );
-	XMFLOAT3 to = XMFLOAT3( from.x, from.y+100.f, from.z );
-	XMFLOAT4 color = XMFLOAT4( 1.f, 0.f, 0.f, 1.0f );
-	physicsDebugDrawer->Begin( viewProj );
-	physicsDebugDrawer->drawLine( from, to, color );
-	physicsDebugDrawer->End();
+	physicsWorld->drawDebug(viewProj);
 #endif
 	swapChain->Present( 0, 0 );
 }

@@ -8,9 +8,8 @@
 #include "FirePlinth.h"
 #include "Goblin.h"
 #include "Lighting.h"
-#include "PhysicsWorld.h"
 
-class PhysicsDebugDrawer;
+class PhysicsWorld;
 
 #define MAX_LOADSTRING 100
 
@@ -57,8 +56,6 @@ private:
 	FirePlinth				firePlinth;
 	Lighting				lighting;
 	Goblin					goblin;
-	PhysicsWorld			physicsWorld;
-	PhysicsDebugDrawer*		physicsDebugDrawer;
-	
+	PhysicsWorld*			physicsWorld;
 };
 

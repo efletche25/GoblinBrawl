@@ -2,14 +2,20 @@
 #include "PhysicsWorld.h"
 #include "PhysicsDebugDrawer.h"
 
-#define PHYSICS_DEBUG_MODE
-
 PhysicsWorld::PhysicsWorld() :
 debugDrawer(nullptr) {}
 
 PhysicsWorld::~PhysicsWorld() {
 	cleanUpDemo();
 	//TODO -- Delete all the things
+}
+
+bool PhysicsWorld::init( ID3D11DeviceContext* ctx ) {
+#ifdef PHYSICS_DEBUG_MODE
+	debugDrawer = new PhysicsDebugDrawer(); debugDrawer = new PhysicsDebugDrawer();
+	debugDrawer->Init( ctx );
+#endif
+	return this->init();
 }
 
 bool PhysicsWorld::init() {
@@ -29,8 +35,7 @@ bool PhysicsWorld::init() {
 	dynamicsWorld->setGravity( btVector3( btScalar( 0 ), btScalar( -9.8 ), btScalar( 0 ) ) );
 
 #ifdef PHYSICS_DEBUG_MODE
-	//debugDrawer = new PhysicsDebugDrawer();
-	//dynamicsWorld->setDebugDrawer( debugDrawer );
+	dynamicsWorld->setDebugDrawer( debugDrawer );
 #endif
 	return true;
 }
@@ -93,8 +98,7 @@ void PhysicsWorld::runDemo() {
 			trans = obj->getWorldTransform();
 		}
 		fprintf( stdout, "world pos object %d = %f,%f,%f\n", i, float( trans.getOrigin().getX() ), float( trans.getOrigin().getY() ), float( trans.getOrigin().getZ() ) );
-	}
-	
+	}	
 }
 
 void PhysicsWorld::cleanUpDemo() {
@@ -128,4 +132,11 @@ void PhysicsWorld::cleanUpDemo() {
 
 	//next line is optional: it will be cleared by the destructor when the array goes out of scope
 	collisionShapes.clear();
+}
+
+void XM_CALLCONV PhysicsWorld::drawDebug( FXMMATRIX viewProj ) {
+	assert( debugDrawer!=nullptr );
+	debugDrawer->Begin(viewProj);
+	dynamicsWorld->debugDrawWorld();
+	debugDrawer->End();
 }

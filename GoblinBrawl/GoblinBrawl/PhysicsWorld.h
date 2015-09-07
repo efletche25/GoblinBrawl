@@ -1,5 +1,8 @@
 #pragma once
+#include "stdafx.h"
 #include "btBulletDynamicsCommon.h"
+
+#define PHYSICS_DEBUG_MODE
 
 class PhysicsDebugDrawer;
 
@@ -8,8 +11,10 @@ public:
 	PhysicsWorld();
 	~PhysicsWorld();
 	bool init();
+	bool init( ID3D11DeviceContext* device );
 	void setupDemo();
 	void runDemo();
+	void XM_CALLCONV drawDebug( DirectX::FXMMATRIX viewProj );
 private:
 	void cleanUpDemo();
 	btDefaultCollisionConfiguration*		collisionConfiguration;
