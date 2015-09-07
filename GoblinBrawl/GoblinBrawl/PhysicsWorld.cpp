@@ -1,11 +1,16 @@
 #include "stdafx.h"
 #include "PhysicsWorld.h"
+#include "PhysicsDebugDrawer.h"
 
+#define PHYSICS_DEBUG_MODE
 
-PhysicsWorld::PhysicsWorld() {}
+PhysicsWorld::PhysicsWorld() :
+debugDrawer(nullptr) {}
 
-
-PhysicsWorld::~PhysicsWorld() {}
+PhysicsWorld::~PhysicsWorld() {
+	cleanUpDemo();
+	//TODO -- Delete all the things
+}
 
 bool PhysicsWorld::init() {
 	collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -21,6 +26,106 @@ bool PhysicsWorld::init() {
 
 	dynamicsWorld = new btDiscreteDynamicsWorld( dispatcher, overlappingPairCache, solver, collisionConfiguration );
 
+	dynamicsWorld->setGravity( btVector3( btScalar( 0 ), btScalar( -9.8 ), btScalar( 0 ) ) );
 
-	return false; //FIXME ***********************
+#ifdef PHYSICS_DEBUG_MODE
+	//debugDrawer = new PhysicsDebugDrawer();
+	//dynamicsWorld->setDebugDrawer( debugDrawer );
+#endif
+	return true;
+}
+
+void PhysicsWorld::setupDemo() {
+	btCollisionShape* groundShape = new btBoxShape( btVector3( btScalar( 50. ), btScalar( 50. ), btScalar( 50. ) ) );
+
+	collisionShapes.push_back( groundShape );
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin( btVector3( 0, -56, 0 ) );
+	{
+		btScalar mass( 0. );
+		bool isDynamic = (mass!=0.f);
+		btVector3 localInertia( 0, 0, 0 );
+		if( isDynamic ) {
+			groundShape->calculateLocalInertia( mass, localInertia );
+		}
+
+		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState( groundTransform );
+		btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, groundShape, localInertia );
+		btRigidBody* body = new btRigidBody( rbInfo );
+
+		dynamicsWorld->addRigidBody( body );
+	}
+	{
+		//create a dynamic rigidbody
+		btCollisionShape* colShape = new btSphereShape( btScalar( 1. ) );
+		collisionShapes.push_back( colShape );
+
+		btTransform startTransform;
+		startTransform.setIdentity();
+		btScalar	mass( 1.f );
+		bool isDynamic = (mass!=0.f);
+		btVector3 localInertia( 0, 0, 0 );
+		if( isDynamic ) {
+			colShape->calculateLocalInertia( mass, localInertia );
+			startTransform.setOrigin( btVector3(2, 10, 0 ));
+			btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
+			btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, colShape, localInertia );
+			btRigidBody* body = new btRigidBody( rbInfo );
+
+			dynamicsWorld->addRigidBody( body );
+		}
+	}
+
+
+}
+
+void PhysicsWorld::runDemo() {
+	dynamicsWorld->stepSimulation( 1.f/60.f, 10 );
+	for( int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0; --i ) {
+		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast( obj );
+		btTransform trans;
+		if( body && body->getMotionState() ) {
+			body->getMotionState()->getWorldTransform( trans );
+		} else {
+			trans = obj->getWorldTransform();
+		}
+		fprintf( stdout, "world pos object %d = %f,%f,%f\n", i, float( trans.getOrigin().getX() ), float( trans.getOrigin().getY() ), float( trans.getOrigin().getZ() ) );
+	}
+	
+}
+
+void PhysicsWorld::cleanUpDemo() {
+	for( int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0; --i ) {
+		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast( obj );
+		if( body && body->getMotionState() ) {
+			delete body->getMotionState();
+		}
+		dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+	for( int j = 0; j<collisionShapes.size(); ++j ) {
+		btCollisionShape* shape = collisionShapes[j];
+		collisionShapes[j] = 0;
+		delete shape;
+	}
+	//delete dynamics world
+	delete dynamicsWorld;
+
+	//delete solver
+	delete solver;
+
+	//delete broadphase
+	delete overlappingPairCache;
+
+	//delete dispatcher
+	delete dispatcher;
+
+	delete collisionConfiguration;
+
+	//next line is optional: it will be cleared by the destructor when the array goes out of scope
+	collisionShapes.clear();
 }

@@ -1,10 +1,10 @@
 #pragma once
-#include "Vertex.h"
+#include "stdafx.h"
 #include <PrimitiveBatch.h>
+#include "Vertex.h"
 #include "LinearMath\btIDebugDraw.h"
-#include <memory>
 
-class PhysicsDebugDrawer : btIDebugDraw {
+class PhysicsDebugDrawer : public btIDebugDraw {
 public:
 	PhysicsDebugDrawer();
 	~PhysicsDebugDrawer();

@@ -402,6 +402,7 @@ bool Game::LoadGameObjects() {
 	physicsDebugDrawer = new PhysicsDebugDrawer();
 	physicsDebugDrawer->Init( d3DImmediateContext );
 #endif
+	physicsWorld.setupDemo();
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
 	lighting = Lighting();
 	if( !lighting.Init( &loader ) ) {
@@ -432,6 +433,7 @@ bool Game::LoadGameObjects() {
 }
 
 void Game::Update( float dt ) {
+	physicsWorld.runDemo();
 	XMVECTOR camPos = XMVectorSet( 0.f, 4.f, -15.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
