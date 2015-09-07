@@ -14,9 +14,9 @@ bool PhysicsDebugDrawer::Init( ID3D11DeviceContext* device ) {
 }
 
 void XM_CALLCONV PhysicsDebugDrawer::Begin(FXMMATRIX viewProj ) {
-	//ctx->OMGetBlendState(&oldBlendState, oldBlendFactor,  NULL);
-	//ctx->OMGetDepthStencilState(&oldStencilState, &oldStencilRef);
-	//ctx->RSGetState( &oldRasterizerState );
+	ctx->OMGetBlendState(&oldBlendState, oldBlendFactor,  NULL);
+	ctx->OMGetDepthStencilState(&oldStencilState, &oldStencilRef);
+	ctx->RSGetState( &oldRasterizerState );
 
 	XMMATRIX world = XMMatrixIdentity();
 	XMMATRIX worldViewProj = world*viewProj;
@@ -31,9 +31,9 @@ void XM_CALLCONV PhysicsDebugDrawer::Begin(FXMMATRIX viewProj ) {
 
 void PhysicsDebugDrawer::End() {
 	primitiveBatch->End();
-	//ctx->OMSetBlendState( oldBlendState, oldBlendFactor, 0xffffffff );
-	//ctx->OMSetDepthStencilState( oldStencilState, oldStencilRef );
-	//ctx->RSSetState( oldRasterizerState );
+	ctx->OMSetBlendState( oldBlendState, oldBlendFactor, 0xffffffff );
+	ctx->OMSetDepthStencilState( oldStencilState, oldStencilRef );
+	ctx->RSSetState( oldRasterizerState );
 }
 
 void PhysicsDebugDrawer::setDebugMode( int debugMode ) {

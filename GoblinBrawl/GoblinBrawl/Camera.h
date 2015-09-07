@@ -1,4 +1,6 @@
 #pragma once
+#include "DirectX_11_1_Includes.h"
+
 using namespace DirectX;
 class Camera {
 public:

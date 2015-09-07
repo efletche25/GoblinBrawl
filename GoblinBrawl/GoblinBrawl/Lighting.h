@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <DirectXMath.h>
+#include "DirectX_11_1_Includes.h"
 
 #define POINTLIGHT_COUNT 5
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <DirectXMath.h>
+#include "DirectX_11_1_Includes.h"
 
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;

@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "DirectX_11_1_Includes.h"
 #include <PrimitiveBatch.h>
 #include "Vertex.h"
 #include "LinearMath\btIDebugDraw.h"

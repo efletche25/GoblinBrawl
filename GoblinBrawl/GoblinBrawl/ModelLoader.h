@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <DirectXMath.h>
+#include "DirectX_11_1_Includes.h"
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags

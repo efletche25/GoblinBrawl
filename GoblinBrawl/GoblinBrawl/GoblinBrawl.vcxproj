@@ -326,6 +326,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
     <ClInclude Include="Bullet\LinearMath\btTransformUtil.h" />
     <ClInclude Include="Bullet\LinearMath\btVector3.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DirectX_11_1_Includes.h" />
     <ClInclude Include="dxErrUtil.h" />
     <ClInclude Include="MyEffects.h" />
     <ClInclude Include="FirePlinth.h" />

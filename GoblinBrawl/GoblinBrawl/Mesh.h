@@ -1,12 +1,13 @@
 #pragma once
+#include "DirectX_11_1_Includes.h"
 class Mesh {
 public:
 	Mesh();
 	~Mesh();
-	inline ID3D11Buffer * IB() {
+	inline ID3D11Buffer* IB() {
 		return ib;
 	}
-	inline ID3D11Buffer * VB() {
+	inline ID3D11Buffer* VB() {
 		return vb;
 	}
 	inline UINT IndexCount() {

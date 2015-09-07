@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <DirectXMath.h>
+#include "DirectX_11_1_Includes.h"
 #include "FX11/d3dx11effect.h"
 #include "Lighting.h"
 
