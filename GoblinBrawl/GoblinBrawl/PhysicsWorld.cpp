@@ -37,13 +37,14 @@ bool PhysicsWorld::init() {
 #ifdef PHYSICS_DEBUG_MODE
 	dynamicsWorld->setDebugDrawer( debugDrawer );
 #endif
+	
 	return true;
 }
 
 void PhysicsWorld::setupDemo() {
 	btCollisionShape* groundShape = new btBoxShape( btVector3( btScalar( 50. ), btScalar( 50. ), btScalar( 50. ) ) );
 
-	collisionShapes.push_back( groundShape );
+	addCollisionShape( groundShape );
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin( btVector3( 0, -56, 0 ) );
@@ -60,12 +61,12 @@ void PhysicsWorld::setupDemo() {
 		btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, groundShape, localInertia );
 		btRigidBody* body = new btRigidBody( rbInfo );
 
-		dynamicsWorld->addRigidBody( body );
+		addRigidBody( body );
 	}
 	{
 		//create a dynamic rigidbody
 		btCollisionShape* colShape = new btSphereShape( btScalar( 1. ) );
-		collisionShapes.push_back( colShape );
+		addCollisionShape( colShape );
 
 		btTransform startTransform;
 		startTransform.setIdentity();
@@ -74,12 +75,12 @@ void PhysicsWorld::setupDemo() {
 		btVector3 localInertia( 0, 0, 0 );
 		if( isDynamic ) {
 			colShape->calculateLocalInertia( mass, localInertia );
-			startTransform.setOrigin( btVector3(2, 10, 0 ));
+			startTransform.setOrigin( btVector3(2, 40, 0 ));
 			btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
 			btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, colShape, localInertia );
 			btRigidBody* body = new btRigidBody( rbInfo );
 
-			dynamicsWorld->addRigidBody( body );
+			addRigidBody( body );
 		}
 	}
 
@@ -139,4 +140,12 @@ void XM_CALLCONV PhysicsWorld::drawDebug( FXMMATRIX viewProj ) {
 	debugDrawer->Begin(viewProj);
 	dynamicsWorld->debugDrawWorld();
 	debugDrawer->End();
+}
+
+void PhysicsWorld::addCollisionShape( btCollisionShape* shape ) {
+	collisionShapes.push_back( shape );
+}
+
+void PhysicsWorld::addRigidBody( btRigidBody* rb ) {
+	dynamicsWorld->addRigidBody( rb );
 }

@@ -17,6 +17,7 @@ public:
 	~ModelLoader();
 	bool Load( std::string filename, Vertex::VERTEX_TYPE type );
 	Mesh* GetMesh();
+	void GetMeshExtents( float &outMinX, float &outMaxX, float &outMinY, float &outMaxY, float &outMinZ, float &outMaxZ );
 	Skeleton* GetSkeleton();
 	std::vector<PointLight> GetPointLights();
 private:
@@ -26,6 +27,7 @@ private:
 	void CreateBoneHierarchy();
 	DirectX::XMMATRIX XM_CALLCONV ConvertMatrix( aiMatrix4x4 inMat );
 	void FindBoneChildren( aiNode* node, int parentIdx );
+	inline void UpdateExtents( float x, float y, float z );
 	ID3D11Device*			device;
 	std::string				modelDir;
 	std::string				textureDir;
@@ -35,6 +37,12 @@ private:
 	ID3D11Buffer*			vb;
 	std::vector<PointLight> pointLights;
 	Skeleton*				skeleton;
+	float					minX;
+	float					minY;
+	float					minZ;
+	float					maxX;
+	float					maxY;
+	float					maxZ;
 
 	template <typename VertexType>
 	void SetVertices( ID3D11Device* device, UINT count, const VertexType* vertices ) {

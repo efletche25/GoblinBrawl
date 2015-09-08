@@ -14,6 +14,8 @@ public:
 	bool init( ID3D11DeviceContext* device );
 	void setupDemo();
 	void runDemo();
+	inline void addCollisionShape( btCollisionShape* shape);
+	inline void addRigidBody( btRigidBody* rb );
 	void XM_CALLCONV drawDebug( DirectX::FXMMATRIX viewProj );
 private:
 	void cleanUpDemo();

@@ -2,6 +2,7 @@
 #include "ModelLoader.h"
 #include <map>
 #include <assert.h>
+#include <limits>
 #include "assimp/DefaultLogger.hpp"
 #include "Mesh.h"
 #include "Skeleton.h"
@@ -19,6 +20,10 @@ ModelLoader::~ModelLoader() {
 }
 
 bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
+	// reset extents
+	minX = minY = minZ = FLT_MAX;
+	maxX = maxY = maxZ = FLT_MIN;
+
 	Assimp::Importer importer;
 	std::string file = modelDir+filename;
 	Assimp::DefaultLogger::get()->info( "Importing: "+file );
@@ -93,11 +98,15 @@ void ModelLoader::CreateIndexBuffer( const aiFace* indices, UINT count ) {
 void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 	UINT count = mesh->mNumVertices;
 	aiVector3D* vertices = mesh->mVertices;
+	/*  The switch case looks like duplicated code.  It is not.
+		vertData is a different type in each and SetVertices() is
+		a template. */
 	switch( type ) {
 	case Vertex::SIMPLE:
 	{
 		std::vector<Vertex::SimpleVertex> vertData( count );
 		for( UINT i = 0; i<count; ++i ) {
+			UpdateExtents( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 		}
 		SetVertices( device, count, vertData.data() );
@@ -110,6 +119,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		aiVector3D* texCoords = mesh->mTextureCoords[0];
 		std::vector<Vertex::TerrainVertex> vertData( count );
 		for( UINT i = 0; i<count; ++i ) {
+			UpdateExtents( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
@@ -131,6 +141,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		aiVector3D* texCoords = mesh->mTextureCoords[0];
 		std::vector<Vertex::CharacterSkinnedVertex> vertData( count );
 		for( UINT i = 0; i<count; ++i ) {
+			UpdateExtents( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, vertices[i].z );
 			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
@@ -217,4 +228,31 @@ DirectX::XMMATRIX XM_CALLCONV ModelLoader::ConvertMatrix( aiMatrix4x4 inMat ) {
 		inMat.a3, inMat.b3, inMat.c3, inMat.d3,
 		inMat.a4, inMat.b4, inMat.c4, inMat.d4 );
 	return transposed;
+}
+
+void ModelLoader::GetMeshExtents( float &outMinX, float &outMaxX, float &outMinY, float &outMaxY, float &outMinZ, float &outMaxZ ) {
+	outMinX = minX;
+	outMaxX = maxX;
+	outMinY = minY;
+	outMaxY = maxY;
+	outMinZ = minZ;
+	outMaxZ = maxZ;
+}
+
+inline void ModelLoader::UpdateExtents( float x, float y, float z ) {
+	if( x<minX ) {
+		minX = x;
+	} else if( x>maxX ) {
+		maxX = x;
+	}
+	if( y<minY ) {
+		minY = y;
+	} else if( y>maxY ) {
+		maxY = y;
+	}
+	if( z<minZ ) {
+		minZ = z;
+	} else if( z>maxZ ) {
+		maxZ = z;
+	}
 }
