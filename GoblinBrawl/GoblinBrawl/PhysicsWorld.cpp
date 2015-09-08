@@ -6,19 +6,19 @@ PhysicsWorld::PhysicsWorld() :
 debugDrawer(nullptr) {}
 
 PhysicsWorld::~PhysicsWorld() {
-	cleanUpDemo();
+	CleanUpDemo();
 	//TODO -- Delete all the things
 }
 
-bool PhysicsWorld::init( ID3D11DeviceContext* ctx ) {
+bool PhysicsWorld::Init( ID3D11DeviceContext* ctx ) {
 #ifdef PHYSICS_DEBUG_MODE
 	debugDrawer = new PhysicsDebugDrawer(); debugDrawer = new PhysicsDebugDrawer();
 	debugDrawer->Init( ctx );
 #endif
-	return this->init();
+	return this->Init();
 }
 
-bool PhysicsWorld::init() {
+bool PhysicsWorld::Init() {
 	collisionConfiguration = new btDefaultCollisionConfiguration();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
@@ -41,10 +41,10 @@ bool PhysicsWorld::init() {
 	return true;
 }
 
-void PhysicsWorld::setupDemo() {
+void PhysicsWorld::SetupDemo() {
 	btCollisionShape* groundShape = new btBoxShape( btVector3( btScalar( 50. ), btScalar( 50. ), btScalar( 50. ) ) );
 
-	addCollisionShape( groundShape );
+	AddCollisionShape( groundShape );
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin( btVector3( 0, -56, 0 ) );
@@ -61,12 +61,12 @@ void PhysicsWorld::setupDemo() {
 		btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, groundShape, localInertia );
 		btRigidBody* body = new btRigidBody( rbInfo );
 
-		addRigidBody( body );
+		AddRigidBody( body );
 	}
 	{
 		//create a dynamic rigidbody
 		btCollisionShape* colShape = new btSphereShape( btScalar( 1. ) );
-		addCollisionShape( colShape );
+		AddCollisionShape( colShape );
 
 		btTransform startTransform;
 		startTransform.setIdentity();
@@ -80,15 +80,19 @@ void PhysicsWorld::setupDemo() {
 			btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, colShape, localInertia );
 			btRigidBody* body = new btRigidBody( rbInfo );
 
-			addRigidBody( body );
+			AddRigidBody( body );
 		}
 	}
 
 
 }
 
-void PhysicsWorld::runDemo() {
-	dynamicsWorld->stepSimulation( 1.f/60.f, 10 );
+void PhysicsWorld::Update( float dt ) {
+	btScalar timeStepInSeconds( dt );
+	dynamicsWorld->stepSimulation( timeStepInSeconds, 1.f/60.f, 10 );
+}
+
+void PhysicsWorld::RunDemo() {
 	for( int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0; --i ) {
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast( obj );
@@ -102,7 +106,7 @@ void PhysicsWorld::runDemo() {
 	}	
 }
 
-void PhysicsWorld::cleanUpDemo() {
+void PhysicsWorld::CleanUpDemo() {
 	for( int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0; --i ) {
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast( obj );
@@ -135,17 +139,17 @@ void PhysicsWorld::cleanUpDemo() {
 	collisionShapes.clear();
 }
 
-void XM_CALLCONV PhysicsWorld::drawDebug( FXMMATRIX viewProj ) {
+void XM_CALLCONV PhysicsWorld::DrawDebug( FXMMATRIX viewProj ) {
 	assert( debugDrawer!=nullptr );
 	debugDrawer->Begin(viewProj);
 	dynamicsWorld->debugDrawWorld();
 	debugDrawer->End();
 }
 
-void PhysicsWorld::addCollisionShape( btCollisionShape* shape ) {
+void PhysicsWorld::AddCollisionShape( btCollisionShape* shape ) {
 	collisionShapes.push_back( shape );
 }
 
-void PhysicsWorld::addRigidBody( btRigidBody* rb ) {
+void PhysicsWorld::AddRigidBody( btRigidBody* rb ) {
 	dynamicsWorld->addRigidBody( rb );
 }

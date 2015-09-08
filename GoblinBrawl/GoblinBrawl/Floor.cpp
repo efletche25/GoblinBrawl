@@ -96,7 +96,7 @@ void Floor::CreateHeightfield( float minX, float maxX, float minY, float maxY, f
 	heightfieldShape->setLocalScaling( v );
 
 	// stash this shape away
-	physicsWorld->addCollisionShape( heightfieldShape );
+	physicsWorld->AddCollisionShape( heightfieldShape );
 
 	// set origin to middle of heightfield
 	btTransform tr;
@@ -108,7 +108,7 @@ void Floor::CreateHeightfield( float minX, float maxX, float minY, float maxY, f
 	btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, NULL, heightfieldShape );
 	rbInfo.m_startWorldTransform = tr;
 	btRigidBody* body = new btRigidBody( rbInfo );
-	physicsWorld->addRigidBody( body );
+	physicsWorld->AddRigidBody( body );
 }
 
 BYTE* Floor::GetRawHeightData( int gridSize, float heightScale, btScalar gridSpacing, PHY_ScalarType type ) {

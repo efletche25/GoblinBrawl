@@ -10,15 +10,16 @@ class PhysicsWorld {
 public:
 	PhysicsWorld();
 	~PhysicsWorld();
-	bool init();
-	bool init( ID3D11DeviceContext* device );
-	void setupDemo();
-	void runDemo();
-	inline void addCollisionShape( btCollisionShape* shape);
-	inline void addRigidBody( btRigidBody* rb );
-	void XM_CALLCONV drawDebug( DirectX::FXMMATRIX viewProj );
+	bool Init();
+	bool Init( ID3D11DeviceContext* device );
+	void SetupDemo();
+	void RunDemo();
+	void Update( float dt );
+	inline void AddCollisionShape( btCollisionShape* shape);
+	inline void AddRigidBody( btRigidBody* rb );
+	void XM_CALLCONV DrawDebug( DirectX::FXMMATRIX viewProj );
 private:
-	void cleanUpDemo();
+	void CleanUpDemo();
 	btDefaultCollisionConfiguration*		collisionConfiguration;
 	btCollisionDispatcher*					dispatcher;
 	btBroadphaseInterface*					overlappingPairCache;

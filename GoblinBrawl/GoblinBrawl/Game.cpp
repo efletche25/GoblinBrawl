@@ -66,7 +66,7 @@ bool Game::Init() {
 	MyEffects::InitAll( d3DDevice );
 	InputLayouts::InitAll( d3DDevice );
 	physicsWorld = new PhysicsWorld();
-	physicsWorld->init( d3DImmediateContext );
+	physicsWorld->Init( d3DImmediateContext );
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -395,7 +395,7 @@ float Game::AspectRatio() {
 }
 
 bool Game::LoadGameObjects() {
-	physicsWorld->setupDemo();
+	physicsWorld->SetupDemo();
 	ModelLoader loader( d3DDevice, "./art/models/", "/art/textures/" );
 	lighting = Lighting();
 	if( !lighting.Init( &loader ) ) {
@@ -426,7 +426,8 @@ bool Game::LoadGameObjects() {
 }
 
 void Game::Update( float dt ) {
-	physicsWorld->runDemo();
+	physicsWorld->Update( dt );
+	physicsWorld->RunDemo();
 	XMVECTOR camPos = XMVectorSet( 30.f, 20.f, 1.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
@@ -449,7 +450,7 @@ void Game::Draw() {
 	//firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 #ifdef PHYSICS_DEBUG_MODE
-	physicsWorld->drawDebug(viewProj);
+	physicsWorld->DrawDebug(viewProj);
 #endif
 	swapChain->Present( 0, 0 );
 }
