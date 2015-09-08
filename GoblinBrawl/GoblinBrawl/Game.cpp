@@ -427,7 +427,7 @@ bool Game::LoadGameObjects() {
 
 void Game::Update( float dt ) {
 	physicsWorld->runDemo();
-	XMVECTOR camPos = XMVectorSet( 150.f, 0.f, 1.f, 1.f );
+	XMVECTOR camPos = XMVectorSet( 30.f, 20.f, 1.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
 	camera.Update( camPos, goblinPos );
@@ -445,7 +445,7 @@ void Game::Draw() {
 
 	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	//walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
-	//lava.Draw( viewProj, d3DImmediateContext );
+	lava.Draw( viewProj, d3DImmediateContext );
 	//firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 #ifdef PHYSICS_DEBUG_MODE

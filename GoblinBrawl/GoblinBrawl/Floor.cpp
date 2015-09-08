@@ -70,12 +70,12 @@ void Floor::CreateHeightfield( float minX, float maxX, float minY, float maxY, f
 	float deltaZ = maxZ-minZ;
 	float maxDimension = deltaX>deltaZ ? deltaX : deltaZ;
 	const btScalar gridSpacing( maxDimension/(float)gridSize );
-	const btScalar minHeight( minY );
-	const btScalar maxHeight( maxY );
+	float heightScale = maxY-minY;
+	const btScalar minHeight( -heightScale );
+	const btScalar maxHeight( heightScale );
 	int upAxis = 1;		// start with Y-axis as "up"
 	PHY_ScalarType type = PHY_FLOAT;
 	bool flipQuadEdges = false;
-	float heightScale = maxY-minY;
 	BYTE* heightfieldData = GetRawHeightData( gridSize, heightScale, gridSpacing, type );
 	btHeightfieldTerrainShape* heightfieldShape = new btHeightfieldTerrainShape(
 		gridSize,
@@ -162,7 +162,7 @@ BYTE* Floor::GetRawHeightData( int gridSize, float heightScale, btScalar gridSpa
 			int xTexCoord = j * gridToTexScale;
 			int yTexCoord = i * gridToTexScale;
 			int pixel = (yTexCoord*texWidth+xTexCoord);
-			float value = (float)pixelData[pixel].r/65526.f*heightScale;
+			float value = (float)pixelData[pixel].r/65526.f*heightScale;;
 			switch( type ) {
 			case PHY_FLOAT:
 			{
