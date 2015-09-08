@@ -17,7 +17,7 @@ Goblin::~Goblin() {
 	delete mesh;
 }
 
-bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
+bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, PLAYER player ) {
 	modelLoader->Load( "Goblin2.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
@@ -36,6 +36,9 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device ) {
 	rot = XMMatrixIdentity();
 	//scale = XMMatrixIdentity();
 	scale = XMMatrixScaling( 0.01f, 0.01f, 0.01f );
+
+	this->kb = kb;
+	this->player = player;
 
 	return true;
 }
@@ -74,6 +77,8 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 }
 
 void Goblin::Update( float dt ) {
+	UpdateActions();
+	DebugActionDisplay();
 	//XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
 	//XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
 	//XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.f, 1.f, 1.f, 1.f ) );
@@ -107,4 +112,47 @@ FXMVECTOR XM_CALLCONV Goblin::getPos() {
 
 void XM_CALLCONV Goblin::SetRot( FXMVECTOR _pos ) {
 	rot = XMMatrixRotationRollPitchYawFromVector( _pos );
+}
+
+void Goblin::UpdateActions() {
+	if( player==PLAYER_1 ) {
+		// Player 1 keys
+		action.Forward = kb->lastState.W;
+		action.Back = kb->lastState.S;
+		action.Left = kb->lastState.A;
+		action.Right = kb->lastState.D;
+		action.Attack = kb->lastState.V;
+		action.Jump = kb->lastState.B;
+		action.Duck = kb->lastState.N;
+	} else {
+		// Player 2 keys
+		action.Forward = kb->lastState.Up;
+		action.Back = kb->lastState.Down;
+		action.Left = kb->lastState.Left;
+		action.Right = kb->lastState.Right;
+		action.Attack = kb->lastState.NumPad0;
+		action.Jump = kb->lastState.NumPad2;
+		action.Duck = kb->lastState.Decimal;
+	}
+}
+
+void Goblin::ResetActions() {
+	action.Forward = false;
+	action.Back = false;
+	action.Left = false;
+	action.Right = false;
+	action.Attack = false;
+	action.Jump = false;
+	action.Duck = false;
+}
+
+void Goblin::DebugActionDisplay() {
+	fprintf( stdout, "Forward:%i\nBack:%i\nRight:%i\nLeft:%i\nAttack:%i\nJump:%i\nDuck:%i\n",
+		action.Forward,
+		action.Back,
+		action.Left,
+		action.Right,
+		action.Attack,
+		action.Jump,
+		action.Duck );
 }

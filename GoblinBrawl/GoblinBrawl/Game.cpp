@@ -53,6 +53,8 @@ Game::~Game() {
 	}
 	ReleaseCOM( d3DImmediateContext );
 	ReleaseCOM( d3DDevice );
+	delete tracker.release();
+	delete keyboard.release();
 }
 
 bool Game::Init() {
@@ -67,6 +69,8 @@ bool Game::Init() {
 	InputLayouts::InitAll( d3DDevice );
 	physicsWorld = new PhysicsWorld();
 	physicsWorld->Init( d3DImmediateContext );
+	keyboard = std::unique_ptr<Keyboard>( new Keyboard );
+	tracker = std::unique_ptr<Keyboard::KeyboardStateTracker>( new Keyboard::KeyboardStateTracker );
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -255,9 +259,9 @@ void Game::OnResize() {
 }
 
 LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
+	//int wmId, wmEvent;
+	//PAINTSTRUCT ps;
+	//HDC hdc;
 
 	switch( msg ) {
 	case WM_ACTIVATE:
@@ -268,6 +272,9 @@ LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 			paused = false;
 			timer.Start();
 		}
+		return 0;
+	case WM_ACTIVATEAPP:
+		Keyboard::ProcessMessage( msg, wParam, lParam );
 		return 0;
 	case WM_ENTERSIZEMOVE:
 		paused = true;
@@ -307,6 +314,12 @@ LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 		return MAKELRESULT( 0, MNC_CLOSE );
 	case WM_DESTROY:
 		PostQuitMessage( 0 );
+		return 0;
+	case WM_KEYDOWN:	// no break
+	case WM_SYSKEYDOWN: // no break
+	case WM_KEYUP:		// no break
+	case WM_SYSKEYUP:
+		Keyboard::ProcessMessage( msg, wParam, lParam );
 		return 0;
 	default:
 		return DefWindowProc( hwnd, msg, wParam, lParam );
@@ -418,7 +431,7 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
 	}
-	if( !goblin.Init( &loader, d3DDevice ) ) {
+	if( !goblin.Init( &loader, d3DDevice, tracker.get(), Goblin::PLAYER_2 ) ) {
 		fprintf( stderr, "Error initiating goblin" );
 		return false;
 	}
@@ -426,8 +439,9 @@ bool Game::LoadGameObjects() {
 }
 
 void Game::Update( float dt ) {
-	physicsWorld->Update( dt );
-	physicsWorld->RunDemo();
+	auto state = keyboard->GetState();
+	tracker->Update( state );
+	
 	XMVECTOR camPos = XMVectorSet( 30.f, 20.f, 1.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
@@ -436,6 +450,9 @@ void Game::Update( float dt ) {
 	goblin.SetPos( goblinPos );
 	goblin.SetRot( goblinRot );
 	goblin.Update( dt );
+
+	physicsWorld->Update( dt );
+	physicsWorld->RunDemo();
 }
 
 void Game::Draw() {
@@ -445,9 +462,9 @@ void Game::Draw() {
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
 	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
-	//walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	lava.Draw( viewProj, d3DImmediateContext );
-	//firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	goblin.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 #ifdef PHYSICS_DEBUG_MODE
 	physicsWorld->DrawDebug(viewProj);
