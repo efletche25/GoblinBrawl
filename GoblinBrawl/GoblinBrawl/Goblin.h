@@ -48,6 +48,10 @@ private:
 		bool Duck;
 	};
 	void UpdateActions();
+	void UpdateController(float dtS);
+	void UpdateModelTransforms();
+
+	// Finite State Machine Functions
 	void InitFSM();
 	void Idle_Before( float dt );
 	void Idle_Update( float dt );
@@ -55,6 +59,7 @@ private:
 	void Forward_Before( float dt );
 	void Forward_Update( float dt );
 	void Forward_After( float dt );
+
 	PLAYER							player;
 	Mesh*							mesh;
 	Skeleton*						skeleton;
@@ -77,7 +82,7 @@ private:
 	float							turnAmount;
 	float							strafeAmount;
 	float							forwardSpeed;	// m/s
-	float							turnSpeed;		// rad/s
+	float							turnSpeed;		// rot/s
 	float							strafeSpeed;	// m/s
 };
 

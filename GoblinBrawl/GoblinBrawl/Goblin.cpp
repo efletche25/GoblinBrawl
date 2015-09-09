@@ -19,9 +19,9 @@ controller(nullptr),
 forwardAmount(0),
 turnAmount(0),
 strafeAmount(0),
-forwardSpeed(2.f),
-turnSpeed(XM_PI),
-strafeSpeed(1.4f)
+forwardSpeed(1.f),
+turnSpeed(2.f),
+strafeSpeed(0.7f)
 {}
 
 Goblin::~Goblin() {
@@ -69,8 +69,8 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 
 	// Physics
 	this->physicsWorld = physicsWorld;
-	btScalar controllerWidth = 0.5;
-	btScalar controllerHeight = 1.75;
+	btScalar controllerWidth = 0.4;
+	btScalar controllerHeight = 1.5;
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin( btVector3( goblinPos.x, goblinPos.y+10, goblinPos.z ) );
@@ -129,23 +129,49 @@ void Goblin::Update( float dt ) {
 	fprintf( stdout, "DT : %f", dt );
 	UpdateActions();
 	DebugActionDisplay();
-	//XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
-	//XMVECTOR rotQuat = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
-	//XMVECTOR scale = XMLoadFloat4( &XMFLOAT4( 1.f, 1.f, 1.f, 1.f ) );
+	fsm->Update(dt);
+	UpdateController(dt);
+	UpdateModelTransforms();
+}
 
-	XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw( 0.f, -XM_PIDIV2/2, 0.f );
-	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Upper_Spine" );
+void Goblin::UpdateController(float dt) {
+	btTransform controllerTransform;
+	controllerTransform = ghostObject->getWorldTransform();
+	
+	btVector3 forwardDir = controllerTransform.getBasis()[2];
+	fprintf( stdout, "forwardDir=%f,%f,%f\n", forwardDir[0], forwardDir[1], forwardDir[2] );
+	btVector3 upDir = controllerTransform.getBasis()[1];
+	btVector3 strafeDir = controllerTransform.getBasis()[0];
+	forwardDir.normalize();
+	upDir.normalize();
+	strafeDir.normalize();
 
-	rotQuat = XMQuaternionRotationRollPitchYaw( 0.f, XM_PIDIV2/2, 0.f );
-	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Neck" );
+	btScalar walkSpeed =  btScalar( forwardSpeed ) * forwardAmount * dt;
+	fprintf( stdout, "walkSpeed=%f\n", walkSpeed );
 
-	rotQuat = XMQuaternionRotationRollPitchYaw( -XM_PIDIV2, 0.f, 0.f );
-	//skeleton->UpdateTransformByName( translate, rotQuat, scale, "Skeleton_Elbow_L" );
-	Bone* elbow = skeleton->GetBoneByName( "Skeleton_Lower_Spine" );
-	XMMATRIX rot = XMMatrixRotationZ( XM_PI/1800.f );
-	XMMATRIX elbowTransform = elbow->localTransform;
-	XMMATRIX bentElbow = elbowTransform*rot;
-	elbow->localTransform = bentElbow;
+	if( turnAmount!=0.f ) {
+		btMatrix3x3 orn = ghostObject->getWorldTransform().getBasis();
+		btQuaternion rotQuat = btQuaternion( btVector3( 0, 1, 0 ), -turnSpeed*turnAmount*dt ); // negative to convert right handed to left handed
+		rotQuat.normalize();
+		orn *= btMatrix3x3( rotQuat );
+		ghostObject->getWorldTransform().setBasis( orn );
+	}
+	forwardDir *= btVector3( 1.0, 1.0, -1.0 ); // Switch Right Handed to left handed
+	controller->setWalkDirection( forwardDir*walkSpeed );
+}
+
+void Goblin::UpdateModelTransforms() {
+	btTransform controllerTransform = ghostObject->getWorldTransform();
+	btVector3 btPos = controllerTransform.getOrigin();
+	XMVECTOR dxPos = XMLoadFloat4( &XMFLOAT4( btPos.x(), btPos.y(), btPos.z(), 1.f ) );
+	SetPos( dxPos );
+	btMatrix3x3 btRot = controllerTransform.getBasis().transpose();
+	XMMATRIX dxMat = XMMATRIX(
+		btRot[0].x(), btRot[0].y(), btRot[0].z(), 0,
+		btRot[1].x(), btRot[1].y(), btRot[1].z(), 0,
+		btRot[2].x(), btRot[2].y(), btRot[2].z(), 0,
+		0, 0, 0, 1.f );
+	rot = dxMat;
 }
 
 void XM_CALLCONV Goblin::SetPos( FXMVECTOR _pos ) {
@@ -160,50 +186,17 @@ FXMVECTOR XM_CALLCONV Goblin::getPos() {
 	return outTrans;
 }
 
-void XM_CALLCONV Goblin::SetRot( FXMVECTOR _pos ) {
-	rot = XMMatrixRotationRollPitchYawFromVector( _pos );
+void XM_CALLCONV Goblin::SetRot( FXMVECTOR _rot ) {
+	rot = XMMatrixRotationRollPitchYawFromVector( _rot );
 }
 
 void Goblin::UpdateActions() {
 	ResetActions();
-	if( player==PLAYER_1 ) {
-		// Player 1 keys
-		action.Forward = kb->lastState.W;
-		action.Back = kb->lastState.S;
-		action.Left = kb->lastState.A;
-		action.Right = kb->lastState.D;
-		action.Attack = kb->lastState.V;
-		action.Jump = kb->lastState.B;
-		action.Duck = kb->lastState.N;
-	} else {
-		// Player 2 keys
-		action.Forward = kb->lastState.Up;
-		action.Back = kb->lastState.Down;
-		action.Left = kb->lastState.Left;
-		action.Right = kb->lastState.Right;
-		action.Attack = kb->lastState.NumPad0;
-		action.Jump = kb->lastState.NumPad2;
-		action.Duck = kb->lastState.Decimal;
-	}
-
-	// This turn amount and forward amount will be overridden if using gamepad
-	if( action.Forward ) {
-		forwardAmount = 1.f;
-	} else if( action.Back ) {
-		forwardAmount = -1.f;
-	}
-	
-	if( action.Left ) {
-		turnAmount = 1.f;
-	} else if( action.Right ) {
-		turnAmount = -1.f;
-	}
-
 	auto gpState = gamePad->GetState( player ); // PLAYER_1 == gamepad 0
 	if( gpState.IsConnected() ) {
 		strafeAmount = gpState.thumbSticks.leftX;
 		forwardAmount = gpState.thumbSticks.leftY;
-		turnAmount = gpState.thumbSticks.rightX;
+		turnAmount = -gpState.thumbSticks.rightX;
 		if( forwardAmount>0 ) {
 			action.Forward = true;
 		} else if( forwardAmount<0 ) {
@@ -217,6 +210,39 @@ void Goblin::UpdateActions() {
 		action.Attack = gpState.IsBPressed();
 		action.Jump = gpState.IsAPressed();
 		action.Duck = gpState.IsXPressed();
+	} else {
+		if( player==PLAYER_1 ) {
+			// Player 1 keys
+			action.Forward = kb->lastState.W;
+			action.Back = kb->lastState.S;
+			action.Left = kb->lastState.A;
+			action.Right = kb->lastState.D;
+			action.Attack = kb->lastState.V;
+			action.Jump = kb->lastState.B;
+			action.Duck = kb->lastState.N;
+		} else {
+			// Player 2 keys
+			action.Forward = kb->lastState.Up;
+			action.Back = kb->lastState.Down;
+			action.Left = kb->lastState.Left;
+			action.Right = kb->lastState.Right;
+			action.Attack = kb->lastState.NumPad0;
+			action.Jump = kb->lastState.NumPad2;
+			action.Duck = kb->lastState.Decimal;
+		}
+
+		// This turn amount and forward amount will be overridden if using gamepad
+		if( action.Forward ) {
+			forwardAmount = 1.f;
+		} else if( action.Back ) {
+			forwardAmount = -1.f;
+		}
+
+		if( action.Left ) {
+			turnAmount = -1.f;
+		} else if( action.Right ) {
+			turnAmount = 1.f;
+		}
 	}
 }
 

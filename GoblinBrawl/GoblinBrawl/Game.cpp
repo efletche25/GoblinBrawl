@@ -449,8 +449,8 @@ bool Game::LoadGameObjects() {
 void Game::Update( float dt ) {
 	auto state = keyboard->GetState();
 	kbTracker->Update( state );
-	
-	XMVECTOR camPos = XMVectorSet( 80.f, 20.f, 1.f, 1.f );
+
+	XMVECTOR camPos = XMVectorSet( 40.f, 20.f, 0.1f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
 	//XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
 	camera.Update( camPos, goblinPos );

@@ -105,7 +105,7 @@ void PhysicsWorld::RunDemo() {
 		} else {
 			trans = obj->getWorldTransform();
 		}
-		fprintf( stdout, "world pos object %d = %f,%f,%f\n", i, float( trans.getOrigin().getX() ), float( trans.getOrigin().getY() ), float( trans.getOrigin().getZ() ) );
+		//fprintf( stdout, "world pos object %d = %f,%f,%f\n", i, float( trans.getOrigin().getX() ), float( trans.getOrigin().getY() ), float( trans.getOrigin().getZ() ) );
 	}
 }
 
