@@ -431,7 +431,7 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
 	}
-	if( !goblin.Init( &loader, d3DDevice, tracker.get(), Goblin::PLAYER_2 ) ) {
+	if( !goblin.Init( &loader, d3DDevice, tracker.get(), Goblin::PLAYER_1, physicsWorld ) ) {
 		fprintf( stderr, "Error initiating goblin" );
 		return false;
 	}
@@ -442,13 +442,13 @@ void Game::Update( float dt ) {
 	auto state = keyboard->GetState();
 	tracker->Update( state );
 	
-	XMVECTOR camPos = XMVectorSet( 30.f, 20.f, 1.f, 1.f );
+	XMVECTOR camPos = XMVectorSet( 80.f, 20.f, 1.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
-	XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
+	//XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
 	camera.Update( camPos, goblinPos );
 	
-	goblin.SetPos( goblinPos );
-	goblin.SetRot( goblinRot );
+	//goblin.SetPos( goblinPos );
+	//goblin.SetRot( goblinRot );
 	goblin.Update( dt );
 
 	physicsWorld->Update( dt );

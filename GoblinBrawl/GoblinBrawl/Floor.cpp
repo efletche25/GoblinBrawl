@@ -108,7 +108,7 @@ void Floor::CreateHeightfield( float minX, float maxX, float minY, float maxY, f
 	btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, NULL, heightfieldShape );
 	rbInfo.m_startWorldTransform = tr;
 	btRigidBody* body = new btRigidBody( rbInfo );
-	physicsWorld->AddRigidBody( body );
+	physicsWorld->World()->addRigidBody( body );
 }
 
 BYTE* Floor::GetRawHeightData( int gridSize, float heightScale, btScalar gridSpacing, PHY_ScalarType type ) {

@@ -2,6 +2,7 @@
 #include "DirectX_11_1_Includes.h"
 #include "Lighting.h"
 #include "Keyboard.h"
+#include "FSM.h"
 
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
@@ -14,6 +15,10 @@ class Skeleton;
 struct ID3D11DeviceContext;
 struct ID3D11Device;
 
+class PhysicsWorld;
+class btKinematicCharacterController;
+class btPairCachingGhostObject;
+
 class Goblin {
 public:
 	enum PLAYER {
@@ -23,7 +28,7 @@ public:
 
 	Goblin();
 	~Goblin();
-	bool Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, PLAYER player );
+	bool Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, PLAYER player, PhysicsWorld* physicsWorld );
 	void Update(float dt);
 	void XM_CALLCONV Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context );
 	void XM_CALLCONV SetPos( FXMVECTOR pos );
@@ -42,6 +47,13 @@ private:
 		bool Duck;
 	};
 	void UpdateActions();
+	void InitFSM();
+	void Idle_Before( float dt );
+	void Idle_Update( float dt );
+	void Idle_After( float dt );
+	void Forward_Before( float dt );
+	void Forward_Update( float dt );
+	void Forward_After( float dt );
 	PLAYER							player;
 	Mesh*							mesh;
 	Skeleton*						skeleton;
@@ -53,5 +65,9 @@ private:
 	XMMATRIX						world;
 	Keyboard::KeyboardStateTracker*	kb;
 	Actions							action;
+	PhysicsWorld*					physicsWorld;
+	btKinematicCharacterController*	controller;
+	btPairCachingGhostObject*		ghostObject;
+	FSM<Goblin>*					fsm;
 };
 

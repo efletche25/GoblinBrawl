@@ -3,7 +3,7 @@
 #include "PhysicsDebugDrawer.h"
 
 PhysicsWorld::PhysicsWorld() :
-debugDrawer(nullptr) {}
+debugDrawer( nullptr ) {}
 
 PhysicsWorld::~PhysicsWorld() {
 	CleanUpDemo();
@@ -25,19 +25,22 @@ bool PhysicsWorld::Init() {
 	dispatcher = new btCollisionDispatcher( collisionConfiguration );
 
 	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-	overlappingPairCache = new btDbvtBroadphase();
+	//overlappingPairCache = new btDbvtBroadphase();
+	btVector3 worldMin( -100, -100, -100 );
+	btVector3 worldMax( 100, 100, 100 );
+	overlappingPairCache = new btAxisSweep3( worldMin, worldMax );
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	solver = new btSequentialImpulseConstraintSolver;
 
 	dynamicsWorld = new btDiscreteDynamicsWorld( dispatcher, overlappingPairCache, solver, collisionConfiguration );
-
 	dynamicsWorld->setGravity( btVector3( btScalar( 0 ), btScalar( -9.8 ), btScalar( 0 ) ) );
+	dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration = 0.0001f;
 
 #ifdef PHYSICS_DEBUG_MODE
 	dynamicsWorld->setDebugDrawer( debugDrawer );
 #endif
-	
+
 	return true;
 }
 
@@ -61,7 +64,7 @@ void PhysicsWorld::SetupDemo() {
 		btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, groundShape, localInertia );
 		btRigidBody* body = new btRigidBody( rbInfo );
 
-		AddRigidBody( body );
+		dynamicsWorld->addRigidBody( body );
 	}
 	{
 		//create a dynamic rigidbody
@@ -75,12 +78,12 @@ void PhysicsWorld::SetupDemo() {
 		btVector3 localInertia( 0, 0, 0 );
 		if( isDynamic ) {
 			colShape->calculateLocalInertia( mass, localInertia );
-			startTransform.setOrigin( btVector3(2, 40, 0 ));
+			startTransform.setOrigin( btVector3( 2, 40, 0 ) );
 			btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
 			btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, colShape, localInertia );
 			btRigidBody* body = new btRigidBody( rbInfo );
 
-			AddRigidBody( body );
+			dynamicsWorld->addRigidBody( body );
 		}
 	}
 
@@ -89,7 +92,7 @@ void PhysicsWorld::SetupDemo() {
 
 void PhysicsWorld::Update( float dt ) {
 	btScalar timeStepInSeconds( dt );
-	dynamicsWorld->stepSimulation( timeStepInSeconds, 1.f/60.f, 10 );
+	dynamicsWorld->stepSimulation( timeStepInSeconds, 10, 1.f/60.f );
 }
 
 void PhysicsWorld::RunDemo() {
@@ -103,7 +106,7 @@ void PhysicsWorld::RunDemo() {
 			trans = obj->getWorldTransform();
 		}
 		fprintf( stdout, "world pos object %d = %f,%f,%f\n", i, float( trans.getOrigin().getX() ), float( trans.getOrigin().getY() ), float( trans.getOrigin().getZ() ) );
-	}	
+	}
 }
 
 void PhysicsWorld::CleanUpDemo() {
@@ -141,15 +144,7 @@ void PhysicsWorld::CleanUpDemo() {
 
 void XM_CALLCONV PhysicsWorld::DrawDebug( FXMMATRIX viewProj ) {
 	assert( debugDrawer!=nullptr );
-	debugDrawer->Begin(viewProj);
+	debugDrawer->Begin( viewProj );
 	dynamicsWorld->debugDrawWorld();
 	debugDrawer->End();
-}
-
-void PhysicsWorld::AddCollisionShape( btCollisionShape* shape ) {
-	collisionShapes.push_back( shape );
-}
-
-void PhysicsWorld::AddRigidBody( btRigidBody* rb ) {
-	dynamicsWorld->addRigidBody( rb );
 }

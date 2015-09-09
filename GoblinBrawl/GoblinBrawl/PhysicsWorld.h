@@ -15,9 +15,10 @@ public:
 	void SetupDemo();
 	void RunDemo();
 	void Update( float dt );
-	inline void AddCollisionShape( btCollisionShape* shape);
-	inline void AddRigidBody( btRigidBody* rb );
+	inline btDiscreteDynamicsWorld* World() { return dynamicsWorld; };
+	inline void AddCollisionShape( btCollisionShape* shape ) { collisionShapes.push_back( shape ); }
 	void XM_CALLCONV DrawDebug( DirectX::FXMMATRIX viewProj );
+	inline btBroadphaseInterface* getPairCache() { return overlappingPairCache; };
 private:
 	void CleanUpDemo();
 	btDefaultCollisionConfiguration*		collisionConfiguration;

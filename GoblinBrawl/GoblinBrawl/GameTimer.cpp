@@ -2,26 +2,26 @@
 #include "GameTimer.h"
 
 GameTimer::GameTimer() :
-secondsPerCount(0.0),
-dt(-1.0),
-baseTime(0.0),
-pausedTime(0.0),
-prevTime(0.0),
-currTime(0.0),
+dt( -1.0 ),
+baseTime( 0 ),
+pausedTime( 0 ),
+prevTime( 0 ),
+currTime( 0 ),
+freq( 0 ),
 stopped(false)
 {
-	__int64 countsPerSecond;
-	QueryPerformanceFrequency( (LARGE_INTEGER*)&countsPerSecond );
-	secondsPerCount = 1.0/(double)countsPerSecond;
+	LARGE_INTEGER tempFreq;
+	QueryPerformanceFrequency( &tempFreq );
+	freq = tempFreq.QuadPart;
 }
 
 
 void GameTimer::Start() {
-	__int64 startTime;
-	QueryPerformanceCounter( (LARGE_INTEGER*)&startTime );
+	LARGE_INTEGER startTime;
+	QueryPerformanceCounter( &startTime );
 	if( stopped ) {
-		pausedTime += (startTime-stopTime);
-		prevTime = startTime;
+		pausedTime += (startTime.QuadPart-stopTime);
+		prevTime = startTime.QuadPart;
 		stopTime = 0;
 		stopped = false;
 	}
@@ -29,9 +29,9 @@ void GameTimer::Start() {
 
 void GameTimer::Stop() {
 	if( !stopped ) {
-		__int64 currTime;
-		QueryPerformanceCounter( (LARGE_INTEGER*)&currTime );
-		stopTime = currTime;
+		LARGE_INTEGER currTime;
+		QueryPerformanceCounter( &currTime );
+		stopTime = currTime.QuadPart;
 		stopped = true;
 	}
 }
@@ -42,10 +42,12 @@ void GameTimer::Tick() {
 		return;
 	}
 
-	__int64 queryTime;
-	QueryPerformanceCounter( (LARGE_INTEGER*)&queryTime );
-	currTime = queryTime;
-	dt = (currTime-prevTime)*secondsPerCount;
+	LARGE_INTEGER queryTime;
+	QueryPerformanceCounter( &queryTime );
+	currTime = queryTime.QuadPart;
+
+	__int64 elapsedMillisecond = (currTime-prevTime);
+	dt = (double)elapsedMillisecond/freq;
 	prevTime = currTime;
 
 	// Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the 
@@ -57,10 +59,10 @@ void GameTimer::Tick() {
 }
 
 void GameTimer::Reset() {
-	__int64 queryTime;
-	QueryPerformanceCounter( (LARGE_INTEGER*)&queryTime );
-	baseTime = queryTime;
-	prevTime = queryTime;
+	LARGE_INTEGER queryTime;
+	QueryPerformanceCounter( &queryTime );
+	baseTime = queryTime.QuadPart;
+	prevTime = queryTime.QuadPart;
 	stopTime = 0;
 	stopped = false;
 }
@@ -71,9 +73,9 @@ float GameTimer::DT() const {
 
 float GameTimer::TotalTime() const {
 	if( stopped ) {
-		return (float)(((stopTime-pausedTime)-baseTime)*secondsPerCount);
+		return (float)(((stopTime-pausedTime)-baseTime)/freq);
 	} else {
-		return (float)(((currTime-pausedTime)-baseTime)*secondsPerCount);
+		return (float)(((currTime-pausedTime)-baseTime)/freq);
 	}
 }
 

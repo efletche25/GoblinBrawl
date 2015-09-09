@@ -14,7 +14,6 @@ public:
 	void Stop();
 	void Tick();
 private:
-	double secondsPerCount;
 	double dt;
 
 	__int64 baseTime;
@@ -22,6 +21,7 @@ private:
 	__int64 stopTime;
 	__int64 prevTime;
 	__int64 currTime;
+	__int64	freq;
 
 	bool stopped;
 };

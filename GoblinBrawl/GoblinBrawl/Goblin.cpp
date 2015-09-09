@@ -7,17 +7,23 @@
 #include "MathUtils.h"
 #include "Skeleton.h"
 #include "WICTextureLoader.h"
+#include "PhysicsWorld.h"
+#include "Bullet/BulletDynamics/Character/btKinematicCharacterController.h"
+#include "Bullet/BulletCollision/CollisionDispatch/btGhostObject.h"
 
 Goblin::Goblin() :
 mesh( nullptr ),
-diffuseView( nullptr ) {}
+diffuseView( nullptr ),
+ghostObject(nullptr),
+controller(nullptr){}
 
 Goblin::~Goblin() {
 	delete skeleton;
 	delete mesh;
 }
 
-bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, PLAYER player ) {
+bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, PLAYER player, PhysicsWorld* physicsWorld ) {
+	// Model
 	modelLoader->Load( "Goblin2.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
@@ -27,18 +33,51 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	if( skeleton==nullptr ) {
 		return false;
 	}
+
+	//Texture
 	HR( CreateWICTextureFromFile( device, L"./art/textures/goblin_color.tif", NULL, &diffuseView, NULL ) );
 	mat.Ambient = XMFLOAT4( 0.02f, 0.3f, 0.5f, 1.0f );
 	mat.Diffuse = XMFLOAT4( 0.8f, 0.8f, 0.8f, 1.0f );
 	mat.Specular = XMFLOAT4( 0.3f, 0.3f, 0.3f, 32.0f );
 
-	pos = XMMatrixIdentity();
+	// Start Position
+	XMFLOAT4 goblinPos = XMFLOAT4( 0.f, 2.3f, 0.f, 1.f );
+	XMVECTOR xmVectorPos = XMLoadFloat4( &goblinPos );
+	if( player==PLAYER_1 ) {
+		xmVectorPos = XMVectorSet( 0.f, 2.3f, 0.f, 1.0f );
+	} else {
+		xmVectorPos = XMVectorSet( 20.f, 5.f, 10.f, 1.0f );
+	}
+	SetPos( xmVectorPos );
 	rot = XMMatrixIdentity();
 	//scale = XMMatrixIdentity();
 	scale = XMMatrixScaling( 0.01f, 0.01f, 0.01f );
 
+	// Keyboard Controller
 	this->kb = kb;
 	this->player = player;
+
+	// Physics
+	this->physicsWorld = physicsWorld;
+	btScalar controllerWidth = 0.5;
+	btScalar controllerHeight = 1.75;
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin( btVector3( goblinPos.x, goblinPos.y+10, goblinPos.z ) );
+	ghostObject = new btPairCachingGhostObject();
+	ghostObject->setWorldTransform( startTransform );
+	physicsWorld->getPairCache()->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() );
+	btConvexShape* capsule = new btCapsuleShape( controllerWidth, controllerHeight );
+	physicsWorld->AddCollisionShape( capsule );
+	ghostObject->setCollisionShape( capsule );
+	ghostObject->setCollisionFlags( btCollisionObject::CF_CHARACTER_OBJECT );
+	btScalar stepHeight = btScalar( 0.35 );
+	controller = new btKinematicCharacterController( ghostObject, capsule, stepHeight );
+	physicsWorld->World()->addCollisionObject( ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter );
+	physicsWorld->World()->addAction( controller );
+
+	// Finite State Machine
+	InitFSM();
 
 	return true;
 }
@@ -77,6 +116,7 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 }
 
 void Goblin::Update( float dt ) {
+	fprintf( stdout, "DT : %f", dt );
 	UpdateActions();
 	DebugActionDisplay();
 	//XMVECTOR translate = XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 0.f, 1.f ) );
@@ -156,3 +196,85 @@ void Goblin::DebugActionDisplay() {
 		action.Jump,
 		action.Duck );
 }
+
+struct TestStruct {
+	void(Goblin::*fcnPTR)(float);
+};
+
+void Goblin::InitFSM() {
+	
+	fsm = new FSM<Goblin>( this );
+	FSM<Goblin>::StateData idleStateData;
+	idleStateData.Before = &Goblin::Idle_Before;
+	idleStateData.Update = &Goblin::Idle_Update;
+	idleStateData.After = &Goblin::Idle_After;
+	fsm->AddState( FSM_STATE::IDLE, idleStateData );
+
+	FSM<Goblin>::StateData forwardStateData;
+	forwardStateData.Before = &Goblin::Forward_Before;
+	forwardStateData.Update = &Goblin::Forward_Update;
+	forwardStateData.After = &Goblin::Forward_After;
+	fsm->AddState( FSM_STATE::FORWARD, forwardStateData );
+	
+	fsm->ChangeState( FSM_STATE::IDLE );
+	fsm->Update( 42 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->ChangeState( FSM_STATE::FORWARD );
+	fsm->Update( 42 );
+	fsm->Update( 930 );
+	fsm->ChangeState( FSM_STATE::IDLE );
+	fsm->ChangeState( FSM_STATE::FORWARD );
+	fsm->ChangeState( FSM_STATE::FORWARD );
+	fsm->ChangeState( FSM_STATE::FORWARD );
+	fsm->Update( 42 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->ChangeState( FSM_STATE::IDLE );
+	fsm->Update( 930 );
+	fsm->ChangeState( FSM_STATE::FORWARD );
+	fsm->Update( 930 );
+	fsm->ChangeState( FSM_STATE::IDLE );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+	fsm->Update( 930 );
+}
+
+void Goblin::Idle_Before( float dt ) {
+	fprintf( stdout, "Idle_Before\n" );
+}
+
+void Goblin::Idle_Update( float dt ) {
+	fprintf( stdout, "Idle_Update\n" );
+}
+
+void Goblin::Idle_After( float dt ) {
+	fprintf( stdout, "Idle_After\n" );
+}
+
+void Goblin::Forward_Before( float dt ) {
+	fprintf( stdout, "Forward_Before\n" );
+}
+
+void Goblin::Forward_Update( float dt ) {
+	fprintf( stdout, "Forward_Update\n" );
+}
+
+void Goblin::Forward_After( float dt ) {
+	fprintf( stdout, "Forward_After\n" );
+}
+
+struct Foo {
+	Foo( int num ) : num_( num ) {}
+	void print_add( int i ) const { fprintf(stdout, "%i %i \n",num_,i); }
+	int num_;
+};
+
+// store a call to a member function
+//std::function<void( const Foo&, int )> f_add_display = &Foo::print_add;
+const Foo foo( 314159 );
+//f_add_display( foo, 1 );
