@@ -53,8 +53,9 @@ Game::~Game() {
 	}
 	ReleaseCOM( d3DImmediateContext );
 	ReleaseCOM( d3DDevice );
-	delete tracker.release();
+	delete kbTracker.release();
 	delete keyboard.release();
+	delete gamePad.release();
 }
 
 bool Game::Init() {
@@ -70,7 +71,8 @@ bool Game::Init() {
 	physicsWorld = new PhysicsWorld();
 	physicsWorld->Init( d3DImmediateContext );
 	keyboard = std::unique_ptr<Keyboard>( new Keyboard );
-	tracker = std::unique_ptr<Keyboard::KeyboardStateTracker>( new Keyboard::KeyboardStateTracker );
+	kbTracker = std::unique_ptr<Keyboard::KeyboardStateTracker>( new Keyboard::KeyboardStateTracker );
+	gamePad = std::unique_ptr<GamePad>( new GamePad );
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -267,9 +269,15 @@ LRESULT Game::MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 	case WM_ACTIVATE:
 		if( LOWORD( wParam )==WA_INACTIVE ) {
 			paused = true;
+			if( gamePad!=nullptr ) {
+				gamePad.get()->Suspend();
+			}
 			timer.Stop();
 		} else {
 			paused = false;
+			if( gamePad!=nullptr ) {
+				gamePad.get()->Resume();
+			}
 			timer.Start();
 		}
 		return 0;
@@ -431,7 +439,7 @@ bool Game::LoadGameObjects() {
 		fprintf( stderr, "Error initiating fire plinth" );
 		return false;
 	}
-	if( !goblin.Init( &loader, d3DDevice, tracker.get(), Goblin::PLAYER_1, physicsWorld ) ) {
+	if( !goblin.Init( &loader, d3DDevice, kbTracker.get(), gamePad.get() , Goblin::PLAYER_1, physicsWorld ) ) {
 		fprintf( stderr, "Error initiating goblin" );
 		return false;
 	}
@@ -440,7 +448,7 @@ bool Game::LoadGameObjects() {
 
 void Game::Update( float dt ) {
 	auto state = keyboard->GetState();
-	tracker->Update( state );
+	kbTracker->Update( state );
 	
 	XMVECTOR camPos = XMVectorSet( 80.f, 20.f, 1.f, 1.f );
 	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);

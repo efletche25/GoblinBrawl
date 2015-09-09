@@ -11,6 +11,7 @@
 #include "Goblin.h"
 #include "Lighting.h"
 #include "Keyboard.h"
+#include "GamePad.h"
 
 class PhysicsWorld;
 
@@ -62,6 +63,7 @@ private:
 	PhysicsWorld*						physicsWorld;
 	std::unique_ptr<Keyboard>			keyboard;
 	std::unique_ptr<
-		Keyboard::KeyboardStateTracker>	tracker;
+		Keyboard::KeyboardStateTracker>	kbTracker;
+	std::unique_ptr<GamePad>			gamePad;
 };
 

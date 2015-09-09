@@ -15,14 +15,21 @@ Goblin::Goblin() :
 mesh( nullptr ),
 diffuseView( nullptr ),
 ghostObject(nullptr),
-controller(nullptr){}
+controller(nullptr),
+forwardAmount(0),
+turnAmount(0),
+strafeAmount(0),
+forwardSpeed(2.f),
+turnSpeed(XM_PI),
+strafeSpeed(1.4f)
+{}
 
 Goblin::~Goblin() {
 	delete skeleton;
 	delete mesh;
 }
 
-bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, PLAYER player, PhysicsWorld* physicsWorld ) {
+bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, GamePad* gamePad, PLAYER player, PhysicsWorld* physicsWorld ) {
 	// Model
 	modelLoader->Load( "Goblin2.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
@@ -56,6 +63,9 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	// Keyboard Controller
 	this->kb = kb;
 	this->player = player;
+
+	// GamePad
+	this->gamePad = gamePad;
 
 	// Physics
 	this->physicsWorld = physicsWorld;
@@ -155,6 +165,7 @@ void XM_CALLCONV Goblin::SetRot( FXMVECTOR _pos ) {
 }
 
 void Goblin::UpdateActions() {
+	ResetActions();
 	if( player==PLAYER_1 ) {
 		// Player 1 keys
 		action.Forward = kb->lastState.W;
@@ -174,6 +185,39 @@ void Goblin::UpdateActions() {
 		action.Jump = kb->lastState.NumPad2;
 		action.Duck = kb->lastState.Decimal;
 	}
+
+	// This turn amount and forward amount will be overridden if using gamepad
+	if( action.Forward ) {
+		forwardAmount = 1.f;
+	} else if( action.Back ) {
+		forwardAmount = -1.f;
+	}
+	
+	if( action.Left ) {
+		turnAmount = 1.f;
+	} else if( action.Right ) {
+		turnAmount = -1.f;
+	}
+
+	auto gpState = gamePad->GetState( player ); // PLAYER_1 == gamepad 0
+	if( gpState.IsConnected() ) {
+		strafeAmount = gpState.thumbSticks.leftX;
+		forwardAmount = gpState.thumbSticks.leftY;
+		turnAmount = gpState.thumbSticks.rightX;
+		if( forwardAmount>0 ) {
+			action.Forward = true;
+		} else if( forwardAmount<0 ) {
+			action.Back = true;
+		}
+		if( turnAmount<0||strafeAmount<0 ) {
+			action.Left = true;
+		} else if( turnAmount>0||strafeAmount>0 ) {
+			action.Right = true;
+		}
+		action.Attack = gpState.IsBPressed();
+		action.Jump = gpState.IsAPressed();
+		action.Duck = gpState.IsXPressed();
+	}
 }
 
 void Goblin::ResetActions() {
@@ -187,7 +231,7 @@ void Goblin::ResetActions() {
 }
 
 void Goblin::DebugActionDisplay() {
-	fprintf( stdout, "Forward:%i\nBack:%i\nRight:%i\nLeft:%i\nAttack:%i\nJump:%i\nDuck:%i\n",
+	fprintf( stdout, "\n\nForward:%i\nBack:%i\nRight:%i\nLeft:%i\nAttack:%i\nJump:%i\nDuck:%i\n",
 		action.Forward,
 		action.Back,
 		action.Left,
@@ -196,10 +240,6 @@ void Goblin::DebugActionDisplay() {
 		action.Jump,
 		action.Duck );
 }
-
-struct TestStruct {
-	void(Goblin::*fcnPTR)(float);
-};
 
 void Goblin::InitFSM() {
 	
