@@ -7,7 +7,7 @@ public:
 	float TotalTime() const;
 	
 	//Return delta time
-	float DT() const;
+	float DT();
 
 	void Reset();
 	void Start();
@@ -24,5 +24,6 @@ private:
 	__int64	freq;
 
 	bool stopped;
+	bool canTick;
 };
 

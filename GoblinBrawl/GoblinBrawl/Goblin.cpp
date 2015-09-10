@@ -19,9 +19,9 @@ controller(nullptr),
 forwardAmount(0),
 turnAmount(0),
 strafeAmount(0),
-forwardSpeed(2.f),
-turnSpeed(2.4f),
-strafeSpeed(1.5f)
+forwardSpeed(7.f),
+turnSpeed(7.f),
+strafeSpeed(5.f)
 {}
 
 Goblin::~Goblin() {
@@ -141,13 +141,16 @@ void Goblin::UpdateController(float dt) {
 	btVector3 forwardDir = controllerTransform.getBasis()[2];
 	fprintf( stdout, "forwardDir=%f,%f,%f\n", forwardDir[0], forwardDir[1], forwardDir[2] );
 	btVector3 upDir = controllerTransform.getBasis()[1];
-	btVector3 strafeDir = controllerTransform.getBasis()[0];
+	btVector3 sideDir = controllerTransform.getBasis()[0];
 	forwardDir.normalize();
 	upDir.normalize();
-	strafeDir.normalize();
+	sideDir.normalize();
 
-	btScalar walkSpeed =  btScalar( forwardSpeed ) * forwardAmount * dt;
+	btScalar walkSpeed =  btScalar( forwardSpeed ) * forwardAmount;
 	fprintf( stdout, "walkSpeed=%f\n", walkSpeed );
+
+	btScalar sideWalkSpeed = btScalar( strafeSpeed )* strafeAmount;
+	fprintf( stdout, "sideSpeed=%f\n", sideWalkSpeed );
 
 	if( turnAmount!=0.f ) {
 		btMatrix3x3 orn = ghostObject->getWorldTransform().getBasis();
@@ -156,8 +159,9 @@ void Goblin::UpdateController(float dt) {
 		orn *= btMatrix3x3( rotQuat );
 		ghostObject->getWorldTransform().setBasis( orn );
 	}
-	forwardDir *= btVector3( 1.0, 1.0, -1.0 ); // Switch Right Handed to left handed
-	controller->setWalkDirection( forwardDir*walkSpeed );
+	forwardDir *= btVector3( 1.0, 1.0, -1.0 );
+	sideDir *= btVector3( 1.0, 1.0, -1.0 );
+	controller->setWalkDirection( (forwardDir*walkSpeed+sideDir*sideWalkSpeed)*dt );
 }
 
 void Goblin::UpdateModelTransforms() {

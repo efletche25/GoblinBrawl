@@ -33,7 +33,7 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 		//aiProcess_MakeLeftHanded|
 		//aiProcess_FlipWindingOrder|
 		aiProcess_Triangulate|
-		aiProcess_JoinIdenticalVertices|
+		//aiProcess_JoinIdenticalVertices|
 		aiProcess_SortByPType|
 		aiProcess_FlipUVs
 		);
@@ -121,7 +121,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		for( UINT i = 0; i<count; ++i ) {
 			UpdateExtents( vertices[i].x, vertices[i].y, -vertices[i].z );
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, -vertices[i].z );
-			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, -normals[i].z );
+			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
 		}
 		SetVertices( device, count, vertData.data() );
@@ -143,7 +143,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		for( UINT i = 0; i<count; ++i ) {
 			UpdateExtents( vertices[i].x, vertices[i].y, -vertices[i].z );
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, -vertices[i].z );
-			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, -normals[i].z );
+			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
 
 			BYTE boneIndices[4] = { 0, 0, 0, 0 };

@@ -26,19 +26,19 @@ SamplerState samAnisotropic {
 };
 
 struct VertexIn {
-	float3 PosL		:	POSITION;
-	float3 NormalL	:	NORMAL;
-	float2 Tex		:	TEXCOORD;
-	float4 Weights    : WEIGHTS;
-	uint4 BoneIndices : BONEINDICES;
+	float3 PosL			:	POSITION;
+	float3 NormalL		:	NORMAL0;
+	float2 Tex			:	TEXCOORD;
+	float4 Weights		:	WEIGHTS;
+	uint4 BoneIndices	:	BONEINDICES;
 };
 
 struct VertexOut {
-	float4 PosH		:	SV_POSITION;
-	float3 PosW		:	POSITION;
-	float3 NormalW	:	NORMAL;
-	float2 Tex		:	TEXCOORD;
-	float4 DebugCol :	DEBUGCOL;
+	float4 PosH       : SV_POSITION;
+	float3 PosW       : POSITION;
+	float3 NormalW    : NORMAL;
+	float2 Tex      : TEXCOORD0;
+	float4 Debug	: COLOR1;
 };
 
 VertexOut VS( VertexIn vin ) {
@@ -51,7 +51,7 @@ VertexOut VS( VertexIn vin ) {
 	weights[2] = vin.Weights.z;
 	weights[3] = 1.0f-weights[0]-weights[1]-weights[2];
 
-	vin.NormalL = normalize( vin.NormalL.zyx );
+	vin.NormalL = normalize( vin.NormalL.xyz );
 
 	// Vertex blending
 	float3 posL = float3(0.f, 0.f, 0.f);
@@ -62,11 +62,11 @@ VertexOut VS( VertexIn vin ) {
 		normalL += weights[i]*mul( vin.NormalL, (float3x3)gBoneTransforms[vin.BoneIndices[i]] );
 	}
 	
-	vout.DebugCol = float4(normalL, 1.f);
+	vout.Debug = float4(vin.NormalL, 1.f);
 
 	// Transform to world space
 	vout.PosW = mul( float4(posL, 1.0f), gWorld ).xyz;
-	vout.NormalW = normalL.xyz;//mul( normalL, (float3x3)gWorldInvTranspose );
+	vout.NormalW = mul( normalL, (float3x3)gWorldInvTranspose );
 
 	// Transform to homogeneous clip space.
 	vout.PosH = mul( float4(posL, 1.0f), gWorldViewProj );
@@ -110,6 +110,9 @@ float4 PS( VertexOut pin, uniform int gLightCount ) : SV_Target{
 	float4 litColor = texColor * (ambient+diffuse)+spec;
 	litColor.a = gMaterial.Diffuse.a;
 
+	float4 x = float4( pin.Debug.r, pin.Debug.g, pin.Debug.b, 1.0f );
+
+	//return x;
 	//return float4(pin.NormalW, 1.0f);
 	return litColor;
 }

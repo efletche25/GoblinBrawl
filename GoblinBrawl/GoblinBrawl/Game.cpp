@@ -348,8 +348,8 @@ int Game::Run() {
 		}
 		// Otherwise, do animation/game stuff.
 		else {
+			Sleep( 10 ); //DELETEME - this is a terrible hack because the framerate is so high it breaks physics remove it
 			timer.Tick();
-
 			if( !paused ) {
 #ifdef DISPLAY_FPS
 				CalculateFrameStats();
@@ -454,9 +454,9 @@ void Game::Update( float dt ) {
 
 	physicsWorld->Update( dt );
 	physicsWorld->RunDemo();
-	XMVECTOR camPos = XMVectorSet( 40.f, 20.f, 0.1f, 1.f );
-	XMVECTOR targetPos = XMVectorSet( 0.f, 2.3f, 0.f, 1.0f );
-	camera.Update( camPos, targetPos );
+	//XMVECTOR camPos = XMVectorSet( 0.f, 20.f, 0.1f, 1.f ); //XMFLOAT3( -11.4568f, 4.9013f, 17.961f );
+	//XMVECTOR targetPos = XMVectorSet( -11.4568f, 4.9013f, 17.961f, 1.0f );
+	//camera.Update( camPos, targetPos );
 	camera.UpdateFollow(  goblin.GetWorld() );
 }
 

@@ -8,7 +8,8 @@ pausedTime( 0 ),
 prevTime( 0 ),
 currTime( 0 ),
 freq( 0 ),
-stopped(false)
+stopped(false),
+canTick(false)
 {
 	LARGE_INTEGER tempFreq;
 	QueryPerformanceFrequency( &tempFreq );
@@ -49,6 +50,7 @@ void GameTimer::Tick() {
 	__int64 elapsedMillisecond = (currTime-prevTime);
 	dt = (double)elapsedMillisecond/freq;
 	prevTime = currTime;
+	canTick = true;
 
 	// Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the 
 	// processor goes into a power save mode or we get shuffled to another
@@ -67,7 +69,7 @@ void GameTimer::Reset() {
 	stopped = false;
 }
 
-float GameTimer::DT() const {
+float GameTimer::DT() {
 	return (float)dt;
 }
 
