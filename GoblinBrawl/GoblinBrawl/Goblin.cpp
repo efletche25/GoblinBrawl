@@ -19,9 +19,9 @@ controller(nullptr),
 forwardAmount(0),
 turnAmount(0),
 strafeAmount(0),
-forwardSpeed(1.f),
-turnSpeed(2.f),
-strafeSpeed(0.7f)
+forwardSpeed(2.f),
+turnSpeed(2.4f),
+strafeSpeed(1.5f)
 {}
 
 Goblin::~Goblin() {
@@ -151,7 +151,7 @@ void Goblin::UpdateController(float dt) {
 
 	if( turnAmount!=0.f ) {
 		btMatrix3x3 orn = ghostObject->getWorldTransform().getBasis();
-		btQuaternion rotQuat = btQuaternion( btVector3( 0, 1, 0 ), -turnSpeed*turnAmount*dt ); // negative to convert right handed to left handed
+		btQuaternion rotQuat = btQuaternion( btVector3( 0, 1, 0 ), turnSpeed*turnAmount*dt ); // negative to convert right handed to left handed
 		rotQuat.normalize();
 		orn *= btMatrix3x3( rotQuat );
 		ghostObject->getWorldTransform().setBasis( orn );

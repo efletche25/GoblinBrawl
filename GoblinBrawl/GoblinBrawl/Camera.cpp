@@ -11,12 +11,12 @@ Camera::~Camera() {}
 void Camera::Init( float aspectRatio ) {
 	view = XMMatrixIdentity();
 	up = XMVectorSet( 0.f, 1.f, 0.f, 0.f );
-	proj = XMMatrixPerspectiveFovLH( fovAngleY, aspectRatio, nearZ, farZ );
+	proj = XMMatrixPerspectiveFovRH( fovAngleY, aspectRatio, nearZ, farZ );
 }
 
 void XM_CALLCONV Camera::Update( FXMVECTOR _pos, FXMVECTOR target ) {
 	pos = _pos;
-	view = XMMatrixLookAtLH( pos, target, up );
+	view = XMMatrixLookAtRH( pos, target, up );
 	viewProj = view*proj;
 }
 
