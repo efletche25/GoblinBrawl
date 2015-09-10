@@ -69,8 +69,8 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 
 	// Physics
 	this->physicsWorld = physicsWorld;
-	btScalar controllerWidth = 0.4;
-	btScalar controllerHeight = 1.5;
+	btScalar controllerWidth(0.4);
+	btScalar controllerHeight(1.5);
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin( btVector3( goblinPos.x, goblinPos.y+10, goblinPos.z ) );
@@ -188,6 +188,14 @@ FXMVECTOR XM_CALLCONV Goblin::getPos() {
 
 void XM_CALLCONV Goblin::SetRot( FXMVECTOR _rot ) {
 	rot = XMMatrixRotationRollPitchYawFromVector( _rot );
+}
+
+FXMMATRIX XM_CALLCONV Goblin::GetRot() {
+	return rot;
+}
+
+FXMMATRIX XM_CALLCONV Goblin::GetWorld() {
+	return scale * rot * pos;
 }
 
 void Goblin::UpdateActions() {

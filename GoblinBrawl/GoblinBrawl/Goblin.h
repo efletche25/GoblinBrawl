@@ -30,11 +30,13 @@ public:
 	Goblin();
 	~Goblin();
 	bool Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, GamePad* gamepad, PLAYER player, PhysicsWorld* physicsWorld );
-	void Update(float dt);
+	void Update( float dt );
 	void XM_CALLCONV Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vector<PointLight> pointLights, ID3D11DeviceContext* context );
 	void XM_CALLCONV SetPos( FXMVECTOR pos );
 	FXMVECTOR XM_CALLCONV getPos();
 	void XM_CALLCONV SetRot( FXMVECTOR rot );
+	FXMMATRIX XM_CALLCONV GetRot();
+	FXMMATRIX XM_CALLCONV GetWorld();
 	void ResetActions();
 	void DebugActionDisplay();
 private:
@@ -48,7 +50,7 @@ private:
 		bool Duck;
 	};
 	void UpdateActions();
-	void UpdateController(float dtS);
+	void UpdateController( float dtS );
 	void UpdateModelTransforms();
 
 	// Finite State Machine Functions

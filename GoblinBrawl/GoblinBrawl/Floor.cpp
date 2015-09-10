@@ -162,7 +162,7 @@ BYTE* Floor::GetRawHeightData( int gridSize, float heightScale, btScalar gridSpa
 			int xTexCoord = j * gridToTexScale;
 			int yTexCoord = i * gridToTexScale;
 			int pixel = (yTexCoord*texWidth+xTexCoord);
-			float value = (float)pixelData[pixel].r/65526.f*heightScale;;
+			float value = (float)(pixelData[pixel].r/65536.f)*heightScale;
 			switch( type ) {
 			case PHY_FLOAT:
 			{

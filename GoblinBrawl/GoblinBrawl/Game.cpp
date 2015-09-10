@@ -450,17 +450,14 @@ void Game::Update( float dt ) {
 	auto state = keyboard->GetState();
 	kbTracker->Update( state );
 
-	XMVECTOR camPos = XMVectorSet( 40.f, 20.f, 0.1f, 1.f );
-	XMVECTOR goblinPos = XMVectorSet(0.f, 2.3f, 0.f, 1.0f);
-	//XMVECTOR goblinRot = XMVectorSet( 0.f, 0.f, 0.f, 0.f );
-	camera.Update( camPos, goblinPos );
-	
-	//goblin.SetPos( goblinPos );
-	//goblin.SetRot( goblinRot );
 	goblin.Update( dt );
 
 	physicsWorld->Update( dt );
 	physicsWorld->RunDemo();
+	XMVECTOR camPos = XMVectorSet( 40.f, 20.f, 0.1f, 1.f );
+	XMVECTOR targetPos = XMVectorSet( 0.f, 2.3f, 0.f, 1.0f );
+	camera.Update( camPos, targetPos );
+	camera.UpdateFollow(  goblin.GetWorld() );
 }
 
 void Game::Draw() {
