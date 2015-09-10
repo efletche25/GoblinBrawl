@@ -52,6 +52,7 @@ private:
 	void UpdateActions();
 	void UpdateController( float dtS );
 	void UpdateModelTransforms();
+	void UpdateWalkDirection();
 
 	// Finite State Machine Functions
 	void InitFSM();
@@ -61,6 +62,39 @@ private:
 	void Forward_Before( float dt );
 	void Forward_Update( float dt );
 	void Forward_After( float dt );
+	void Turn_Right_Before( float dt );
+	void Turn_Right_Update( float dt );
+	void Turn_Right_After( float dt );
+	void Turn_Left_Before( float dt );
+	void Turn_Left_Update( float dt );
+	void Turn_Left_After( float dt );
+	void Backward_Before( float dt );
+	void Backward_Update( float dt );
+	void Backward_After( float dt );
+	void Jump_Before( float dt );
+	void Jump_Update( float dt );
+	void Jump_After( float dt );
+	void Fall_Before( float dt );
+	void Fall_Update( float dt );
+	void Fall_After( float dt );
+	void Die_Before( float dt );
+	void Die_Update( float dt );
+	void Die_After( float dt );
+	void Duck_Before( float dt );
+	void Duck_Update( float dt );
+	void Duck_After( float dt );
+	void Attack_Before( float dt );
+	void Attack_Update( float dt );
+	void Attack_After( float dt );
+	void Attack_Left_Before( float dt );
+	void Attack_Left_Update( float dt );
+	void Attack_Left_After( float dt );
+	void Attack_Right_Before( float dt );
+	void Attack_Right_Update( float dt );
+	void Attack_Right_After( float dt );
+	void Attack_Jump_Before( float dt );
+	void Attack_Jump_Update( float dt );
+	void Attack_Jump_After( float dt );
 
 	PLAYER							player;
 	Mesh*							mesh;
@@ -71,6 +105,7 @@ private:
 	XMMATRIX						rot;
 	XMMATRIX						scale;
 	XMMATRIX						world;
+	XMMATRIX						modelControllerOffset;
 	Keyboard::KeyboardStateTracker*	kb;
 	GamePad*						gamePad;
 	Actions							action;
@@ -78,6 +113,7 @@ private:
 	btKinematicCharacterController*	controller;
 	btPairCachingGhostObject*		ghostObject;
 	FSM<Goblin>*					fsm;
+	float							movementBearing;
 
 	//Player movement
 	float							forwardAmount;
@@ -86,5 +122,11 @@ private:
 	float							forwardSpeed;	// m/s
 	float							turnSpeed;		// rot/s
 	float							strafeSpeed;	// m/s
+	float							fallSpeed;
+	float							jumpSpeed;
+	float							maxJumpHeight;
+	const float						forwardAngle = XM_PIDIV4/2.f;
+	const float						backwardAngle = XM_PI-XM_PIDIV4/2.f;
+	float							jumpTimer;
 };
 

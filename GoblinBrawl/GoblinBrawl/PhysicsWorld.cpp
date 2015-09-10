@@ -86,8 +86,6 @@ void PhysicsWorld::SetupDemo() {
 			dynamicsWorld->addRigidBody( body );
 		}
 	}
-
-
 }
 
 void PhysicsWorld::Update( float dt ) {
