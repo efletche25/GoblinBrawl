@@ -10,6 +10,7 @@ PhysicsDebugDrawer::~PhysicsDebugDrawer() {}
 bool PhysicsDebugDrawer::Init( ID3D11DeviceContext* device ) {
 	this->ctx = device;
 	primitiveBatch = std::unique_ptr<PrimitiveBatch<Vertex::SimpleVertex>>( new PrimitiveBatch<Vertex::SimpleVertex>( ctx ) );
+	setDebugMode( DBG_DrawConstraints|DBG_DrawConstraintLimits );
 	return true;
 }
 

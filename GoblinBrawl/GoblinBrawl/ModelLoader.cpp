@@ -130,7 +130,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 	case Vertex::CHARACTER_SKINNED:
 	{
 		std::multimap<int, BoneWeight> vertexBoneWeight;
-		for( int boneIndex = 0; boneIndex<mesh->mNumBones; ++boneIndex ) {
+		for( unsigned int boneIndex = 0; boneIndex<mesh->mNumBones; ++boneIndex ) {
 			auto bone = mesh->mBones[boneIndex];
 			for( int i = 0; i<bone->mNumWeights; ++i ) {
 				auto boneWeight = BoneWeight( boneIndex, bone->mWeights[i].mWeight );

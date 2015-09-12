@@ -19,9 +19,9 @@ controller( nullptr ),
 forwardAmount( 0 ),
 turnAmount( 0 ),
 strafeAmount( 0 ),
-forwardSpeed( 5.f ),
-turnSpeed( 4.f ),
-strafeSpeed( 5.f ),
+forwardSpeed( 1.f ),
+turnSpeed( 2.f ),
+strafeSpeed( 1.f ),
 fallSpeed( 20.f ),
 jumpSpeed( 10.f ),
 maxJumpHeight( 1.75f )
@@ -53,7 +53,7 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	// Start Position
 	XMFLOAT4 goblinPos;
 	if( player==PLAYER_1 ) {
-		goblinPos = XMFLOAT4( 0.f, 2.3f, 0.f, 1.0f );
+		goblinPos = XMFLOAT4( 0.f, 4.f, 0.f, 1.0f );
 	} else {
 		goblinPos = XMFLOAT4( 20.f, 5.f, 10.f, 1.0f );
 	}
@@ -76,7 +76,7 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	controllerHeight -= controllerWidth*2;
 	btTransform startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin( btVector3( goblinPos.x, goblinPos.y+10, goblinPos.z ) );
+	startTransform.setOrigin( btVector3( goblinPos.x, goblinPos.y, goblinPos.z ) );
 	ghostObject = new btPairCachingGhostObject();
 	ghostObject->setWorldTransform( startTransform );
 	physicsWorld->getPairCache()->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() );
@@ -93,6 +93,11 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	physicsWorld->World()->addAction( controller );
 
 	modelControllerOffset = XMMatrixTranslation( 0.f, -(controllerHeight*0.5f+controllerWidth), 0.f ); //offset y by height and width because width is the sphere on the end of the capsule
+
+	// Create Physics Skelton
+	XMMATRIX goblinTransform = GetWorld();
+	skeleton->SetRootTransform(goblinTransform );
+	skeleton->InitPhysics( physicsWorld );
 
 	// Finite State Machine
 	InitFSM();
@@ -134,7 +139,7 @@ void XM_CALLCONV Goblin::Draw( FXMMATRIX viewProj, FXMVECTOR cameraPos, std::vec
 }
 
 void Goblin::Update( float dt ) {
-	fprintf( stdout, "DT : %f", dt );
+	fprintf( stdout, "DT : %f, Pos: %3.2f %3.2f %3.2f", dt, pos.r[3].m128_f32[0], pos.r[3].m128_f32[1], pos.r[3].m128_f32[2] );
 	UpdateActions();
 	DebugActionDisplay();
 	fsm->Update( dt );
@@ -602,14 +607,3 @@ void Goblin::Attack_Jump_Update( float dt ) {
 void Goblin::Attack_Jump_After( float dt ) {
 	fprintf( stdout, "Attack_Jump_After\n" );
 }
-
-struct Foo {
-	Foo( int num ) : num_( num ) {}
-	void print_add( int i ) const { fprintf( stdout, "%i %i \n", num_, i ); }
-	int num_;
-};
-
-// store a call to a member function
-//std::function<void( const Foo&, int )> f_add_display = &Foo::print_add;
-const Foo foo( 314159 );
-//f_add_display( foo, 1 );

@@ -44,6 +44,10 @@ bool PhysicsWorld::Init() {
 	return true;
 }
 
+void PhysicsWorld::AddCollisionShape( btCollisionShape* shape ) {
+	collisionShapes.push_back( shape ); 
+} 
+
 void PhysicsWorld::SetupDemo() {
 	btCollisionShape* groundShape = new btBoxShape( btVector3( btScalar( 50. ), btScalar( 50. ), btScalar( 50. ) ) );
 
@@ -73,7 +77,7 @@ void PhysicsWorld::SetupDemo() {
 
 		btTransform startTransform;
 		startTransform.setIdentity();
-		btScalar	mass( 1.f );
+		btScalar mass( 1.f );
 		bool isDynamic = (mass!=0.f);
 		btVector3 localInertia( 0, 0, 0 );
 		if( isDynamic ) {
@@ -90,7 +94,7 @@ void PhysicsWorld::SetupDemo() {
 
 void PhysicsWorld::Update( float dt ) {
 	btScalar timeStepInSeconds( dt );
-	dynamicsWorld->stepSimulation( timeStepInSeconds, 100, btScalar(1.0/60.0) );
+	dynamicsWorld->stepSimulation( timeStepInSeconds, 10, btScalar(1.0/60.0) );
 }
 
 void PhysicsWorld::RunDemo() {

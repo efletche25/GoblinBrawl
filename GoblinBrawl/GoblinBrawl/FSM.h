@@ -95,4 +95,3 @@ public:
 	std::map<FSM_STATE, StateData>		stateMap;
 	std::queue<void(T::*)(float)>		activeQueue;
 };
-
