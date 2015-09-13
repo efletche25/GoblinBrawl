@@ -108,6 +108,7 @@ public:
 		J_KNEE_R,
 		J_ANKLE_L,
 		J_ANKLE_R,
+		J_CLUB,
 		JOINT_COUNT
 	};
 

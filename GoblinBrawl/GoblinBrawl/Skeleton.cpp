@@ -117,13 +117,13 @@ void Skeleton::InitPhysics( PhysicsWorld* _physicsWorld ) {
 void Skeleton::CreateAllShapes() {
 	Bone* bone, *boneTarget;
 	boneTarget = GetBoneByName( "Skeleton_Lower_Spine" );
-	CreateBoneShape( S_HIPS, boneTarget, btScalar( 0.04 ) );
+	CreateBoneShape( S_HIPS, boneTarget, btScalar( 0.14 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Upper_Spine" );
-	CreateBoneShape( S_LOWER_SPINE, boneTarget, btScalar( 0.04 ) );
+	CreateBoneShape( S_LOWER_SPINE, boneTarget, btScalar( 0.12 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Neck" );
-	CreateBoneShape( S_UPPER_SPINE, boneTarget, btScalar( 0.04 ) );
+	CreateBoneShape( S_UPPER_SPINE, boneTarget, btScalar( 0.09 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Head" );
 	CreateBoneShape( S_NECK, boneTarget, btScalar( 0.025 ) );
@@ -135,27 +135,25 @@ void Skeleton::CreateAllShapes() {
 	CreateBoneShape( S_LOWER_LEG, boneTarget, btScalar( 0.05 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Shoulder_R" );
-	CreateBoneShape( S_CLAVICLE, boneTarget, btScalar( 0.04 ) );
+	CreateBoneShape( S_CLAVICLE, boneTarget, btScalar( 0.09 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Elbow_R" );
-	CreateBoneShape( S_UPPER_ARM, boneTarget, btScalar( 0.05 ) );
+	CreateBoneShape( S_UPPER_ARM, boneTarget, btScalar( 0.07 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Wrist_R" );
-	CreateBoneShape( S_LOWER_ARM, boneTarget, btScalar( 0.04 ) );
+	CreateBoneShape( S_LOWER_ARM, boneTarget, btScalar( 0.05 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Foot_R" );
 	CreateBoneShape( S_FOOT, boneTarget, btScalar( 0.04 ) );
 
-	/*
 	boneTarget = GetBoneByName( "Skeleton_Head_Target" );
-	CreateBoneShape(S_HEAD, boneTarget, btScalar( 0.05 ) );
+	CreateBoneShape(S_HEAD, boneTarget, btScalar( 0.07 ) );
 
-	boneTarget = GetBoneByName( "Skeleton_Hand_Target" );
+	boneTarget = GetBoneByName( "Skeleton_Hand_R" );
 	CreateBoneShape(S_HAND, boneTarget, btScalar( 0.04 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Club" );
 	CreateBoneShape(S_CLUB, boneTarget, btScalar( 0.04 ) );
-	*/
 }
 
 void Skeleton::CreateBoneShape( SHAPE shapeName, Bone* target, float radius ) {
@@ -186,9 +184,9 @@ void Skeleton::CreateAllBodies() {
 	body = CreateBoneBody( bone, shapes[S_NECK], btScalar( 1.5 ), btScalar( 0. ), btScalar( 0. ), btScalar( 0. ) );
 	bone->body = bodies[NECK] = body;
 
-	//bone = GetBoneByName( "Skeleton_Head" );
-	//body = CreateBoneBody( bone, shapes[S_HEAD], btScalar( 3.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( 0. ) );
-	//bone->body = bodies[HEAD] = body;
+	bone = GetBoneByName( "Skeleton_Head" );
+	body = CreateBoneBody( bone, shapes[S_HEAD], btScalar( 3.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( 0. ) );
+	bone->body = bodies[HEAD] = body;
 
 	bone = GetBoneByName( "Skeleton_Clavicle_L" );
 	body = CreateBoneBody( bone, shapes[S_CLAVICLE], btScalar( 1.5 ), btScalar( 0. ), btScalar( 0. ), btScalar( XM_PIDIV2 ) );
@@ -214,13 +212,13 @@ void Skeleton::CreateAllBodies() {
 	body = CreateBoneBody( bone, shapes[S_LOWER_ARM], btScalar( 2.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( XM_PIDIV2 ) );
 	bone->body = bodies[LOWER_ARM_L] = body;
 
-	//bone = GetBoneByName( "Skeleton_Wrist_L" );
-	//body = CreateBoneBody( bone, shapes[S_HAND], btScalar( 1.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( XM_PIDIV2 ) );
-	//bone->body = bodies[HAND_L] = body;
+	bone = GetBoneByName( "Skeleton_Wrist_L" );
+	body = CreateBoneBody( bone, shapes[S_HAND], btScalar( 1.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( XM_PIDIV2 ) );
+	bone->body = bodies[HAND_L] = body;
 
-	//bone = GetBoneByName( "Skeleton_Wrist_R" );
-	//body = CreateBoneBody( bone, shapes[S_HAND], btScalar( 1.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( -XM_PIDIV2 ) );
-	//bone->body = bodies[HAND_R] = body;
+	bone = GetBoneByName( "Skeleton_Wrist_R" );
+	body = CreateBoneBody( bone, shapes[S_HAND], btScalar( 1.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( -XM_PIDIV2 ) );
+	bone->body = bodies[HAND_R] = body;
 
 	bone = GetBoneByName( "Skeleton_UpperLeg_R" );
 	body = CreateBoneBody( bone, shapes[S_UPPER_LEG], btScalar( 6.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( 0. ) );
@@ -246,9 +244,9 @@ void Skeleton::CreateAllBodies() {
 	body = CreateBoneBody( bone, shapes[S_FOOT], btScalar( 1.0 ), btScalar( XM_PIDIV2 ), btScalar( 0. ), btScalar( 0. ) );
 	bone->body = bodies[FOOT_L] = body;
 
-	//bone = GetBoneByName( "Skeleton_Club" );
-	//body = CreateBoneBody( bone, shapes[S_CLUB], btScalar( 3.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( 0. ) );
-	//bone->body = bodies[CLUB] = body;
+	bone = GetBoneByName( "Skeleton_Club" );
+	body = CreateBoneBody( bone, shapes[S_CLUB], btScalar( 3.0 ), btScalar( 0. ), btScalar( 0. ), btScalar( 0. ) );
+	bone->body = bodies[CLUB] = body;
 
 	// Setup some damping on the m_bodies
 	for( int i = 0; i<BODY_COUNT; ++i ) {
@@ -286,7 +284,7 @@ btRigidBody* Skeleton::CreateBoneBody( Bone* bone, btConvexShape* shape, float m
 }
 
 void Skeleton::CreateAllJoints() {
-	float debugLimit = XM_PI;
+	float debugLimit = 0.01;
 
 	Bone* from, *to;
 	from = GetBoneByName( "Skeleton_Root" );
@@ -339,7 +337,7 @@ void Skeleton::CreateAllJoints() {
 	j.twistLimit = btScalar( debugLimit );
 	CreateConstraint( J_SPINE_NECK, from, to, j );
 
-	/*from = GetBoneByName( "Skeleton_Neck" );
+	from = GetBoneByName( "Skeleton_Neck" );
 	to = GetBoneByName( "Skeleton_Head" );
 	j.fromOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_NECK]*0.5 ), btScalar( 0. ) );
 	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_HEAD]*0.5 ), btScalar( 0. ) );
@@ -348,7 +346,7 @@ void Skeleton::CreateAllJoints() {
 	j.swingLimit1 = btScalar( debugLimit );
 	j.swingLimit2 = btScalar( debugLimit );
 	j.twistLimit = btScalar( debugLimit );
-	CreateConstraint(J_NECK_HEAD, from, to, j);*/
+	CreateConstraint(J_NECK_HEAD, from, to, j);
 
 	from = GetBoneByName( "Skeleton_Upper_Spine" );
 	to = GetBoneByName( "Skeleton_Clavicle_R" );
@@ -408,6 +406,17 @@ void Skeleton::CreateAllJoints() {
 	j.twistLimit = btScalar( debugLimit );
 	CreateConstraint( J_ELBOW_R, from, to, j );
 
+	from = GetBoneByName( "Skeleton_Elbow_R" );
+	to = GetBoneByName( "Skeleton_Wrist_R" );
+	j.fromOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_LOWER_ARM]*0.5 ), btScalar( 0. ) );
+	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_HAND]*0.5 ), btScalar( 0. ) );
+	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( 0. ); j.aRotZ = btScalar( XM_PIDIV2 );
+	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( 0. ); j.bRotZ = btScalar( XM_PIDIV2 );
+	j.swingLimit1 = btScalar( debugLimit );
+	j.swingLimit2 = btScalar( debugLimit );
+	j.twistLimit = btScalar( debugLimit );
+	CreateConstraint( J_WRIST_R, from, to, j );
+
 	from = GetBoneByName( "Skeleton_Shoulder_L" );
 	to = GetBoneByName( "Skeleton_Elbow_L" );
 	j.fromOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_UPPER_ARM]*0.5 ), btScalar( 0. ) );
@@ -418,6 +427,17 @@ void Skeleton::CreateAllJoints() {
 	j.swingLimit2 = btScalar( debugLimit );
 	j.twistLimit = btScalar( debugLimit );
 	CreateConstraint( J_ELBOW_L, from, to, j );
+
+	from = GetBoneByName( "Skeleton_Elbow_L" );
+	to = GetBoneByName( "Skeleton_Wrist_L" );
+	j.fromOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_LOWER_ARM]*0.5 ), btScalar( 0. ) );
+	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_HAND]*0.5 ), btScalar( 0. ) );
+	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( 0. ); j.aRotZ = btScalar( XM_PIDIV2 );
+	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( 0. ); j.bRotZ = btScalar( XM_PIDIV2 );
+	j.swingLimit1 = btScalar( debugLimit );
+	j.swingLimit2 = btScalar( debugLimit );
+	j.twistLimit = btScalar( debugLimit );
+	CreateConstraint( J_WRIST_L, from, to, j );
 
 	from = GetBoneByName( "Skeleton_Hips" );
 	to = GetBoneByName( "Skeleton_UpperLeg_R" );
@@ -467,12 +487,38 @@ void Skeleton::CreateAllJoints() {
 	j.twistLimit = btScalar( debugLimit );
 	CreateConstraint( J_KNEE_R, from, to, j );
 
-	//TODO
+	from = GetBoneByName( "Skeleton_LowerLeg_R" );
+	to = GetBoneByName( "Skeleton_Ankle_R" );
+	j.fromOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_LOWER_LEG]*0.5 ), btScalar( 0. ) );
+	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_FOOT]*0.5 ), btScalar( 0. ) );
+	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( XM_PIDIV2 ); j.aRotZ = btScalar( XM_PIDIV2 );
+	j.bRotX = btScalar(0.); j.bRotY = btScalar( 0. ); j.bRotZ = btScalar( XM_PIDIV2 );
+	j.swingLimit1 = btScalar( debugLimit );
+	j.swingLimit2 = btScalar( debugLimit );
+	j.twistLimit = btScalar( debugLimit );
+	CreateConstraint( J_ANKLE_R, from, to, j );
 
-	//Hands
-	//Feet
-	//Head
-	//Club
+	from = GetBoneByName( "Skeleton_LowerLeg_L" );
+	to = GetBoneByName( "Skeleton_Ankle_L" );
+	j.fromOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_LOWER_LEG]*0.5 ), btScalar( 0. ) );
+	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_FOOT]*0.5 ), btScalar( 0. ) );
+	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( XM_PIDIV2 ); j.aRotZ = btScalar( XM_PIDIV2 );
+	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( 0. ); j.bRotZ = btScalar( XM_PIDIV2 );
+	j.swingLimit1 = btScalar( debugLimit );
+	j.swingLimit2 = btScalar( debugLimit );
+	j.twistLimit = btScalar( debugLimit );
+	CreateConstraint( J_ANKLE_L, from, to, j );
+
+	from = GetBoneByName( "Skeleton_Wrist_R" );
+	to = GetBoneByName( "Skeleton_Club" );
+	j.fromOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_HAND]*0.5 ), btScalar( 0. ) );
+	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_CLUB]*0.5 ), btScalar( 0. ) );
+	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( XM_PIDIV2 ); j.aRotZ = btScalar( XM_PIDIV2 );
+	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( 0. ); j.bRotZ = btScalar( XM_PIDIV2 );
+	j.swingLimit1 = btScalar( debugLimit );
+	j.swingLimit2 = btScalar( debugLimit );
+	j.twistLimit = btScalar( debugLimit );
+	CreateConstraint( J_CLUB, from, to, j );
 }
 
 /*

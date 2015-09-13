@@ -34,7 +34,7 @@ Goblin::~Goblin() {
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, GamePad* gamePad, PLAYER player, PhysicsWorld* physicsWorld ) {
 	// Model
-	modelLoader->Load( "Goblin2.fbx", Vertex::CHARACTER_SKINNED );
+	modelLoader->Load( "Goblin3.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
 		return false;
