@@ -53,7 +53,7 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	// Start Position
 	XMFLOAT4 goblinPos;
 	if( player==PLAYER_1 ) {
-		goblinPos = XMFLOAT4( 0.f, 4.f, 0.f, 1.0f );
+		goblinPos = XMFLOAT4( 0.f, 3.f, 0.f, 1.0f );
 	} else {
 		goblinPos = XMFLOAT4( 20.f, 5.f, 10.f, 1.0f );
 	}
@@ -89,7 +89,8 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	controller->setFallSpeed( btScalar( fallSpeed ) );
 	controller->setJumpSpeed( btScalar( jumpSpeed ) );
 	controller->setMaxJumpHeight( btScalar( maxJumpHeight ) );
-	physicsWorld->World()->addCollisionObject( ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter );
+	//physicsWorld->World()->addCollisionObject( ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter );
+	physicsWorld->World()->addCollisionObject( ghostObject, COLLIDE_MASK::PLAYER_CONTROLLER, COLLIDE_MASK::GROUND );
 	physicsWorld->World()->addAction( controller );
 
 	modelControllerOffset = XMMatrixTranslation( 0.f, -(controllerHeight*0.5f+controllerWidth), 0.f ); //offset y by height and width because width is the sphere on the end of the capsule

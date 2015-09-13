@@ -6,6 +6,14 @@
 
 class PhysicsDebugDrawer;
 
+enum COLLIDE_MASK {
+	NOTHING = 0,
+	PLAYER_CONTROLLER = 1<<0,
+	PLAYER_BODY = 1<<1,
+	GROUND = 1<<2,
+	FIRE_PLINTH = 1<<3
+};
+
 class PhysicsWorld {
 public:
 	PhysicsWorld();

@@ -104,7 +104,9 @@ void Skeleton::InitPhysics( PhysicsWorld* _physicsWorld ) {
 	btRigidBody* body = new btRigidBody( rbInfo );
 	body->setCollisionFlags( btCollisionObject::CF_NO_CONTACT_RESPONSE );
 	body->setActivationState( DISABLE_DEACTIVATION ); // this need to happen when the object is moved
-	physicsWorld->World()->addRigidBody( body );
+	short group = COLLIDE_MASK::NOTHING;
+	short mask = COLLIDE_MASK::NOTHING;
+	physicsWorld->World()->addRigidBody( body, group, mask );
 	root->body = body;
 
 	CreateAllShapes();
@@ -117,13 +119,13 @@ void Skeleton::InitPhysics( PhysicsWorld* _physicsWorld ) {
 void Skeleton::CreateAllShapes() {
 	Bone* bone, *boneTarget;
 	boneTarget = GetBoneByName( "Skeleton_Lower_Spine" );
-	CreateBoneShape( S_HIPS, boneTarget, btScalar( 0.14 ) );
+	CreateBoneShape( S_HIPS, boneTarget, btScalar( 0.08 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Upper_Spine" );
-	CreateBoneShape( S_LOWER_SPINE, boneTarget, btScalar( 0.12 ) );
+	CreateBoneShape( S_LOWER_SPINE, boneTarget, btScalar( 0.10 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Neck" );
-	CreateBoneShape( S_UPPER_SPINE, boneTarget, btScalar( 0.09 ) );
+	CreateBoneShape( S_UPPER_SPINE, boneTarget, btScalar( 0.12 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Head" );
 	CreateBoneShape( S_NECK, boneTarget, btScalar( 0.025 ) );
@@ -135,13 +137,13 @@ void Skeleton::CreateAllShapes() {
 	CreateBoneShape( S_LOWER_LEG, boneTarget, btScalar( 0.05 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Shoulder_R" );
-	CreateBoneShape( S_CLAVICLE, boneTarget, btScalar( 0.09 ) );
+	CreateBoneShape( S_CLAVICLE, boneTarget, btScalar( 0.10 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Elbow_R" );
-	CreateBoneShape( S_UPPER_ARM, boneTarget, btScalar( 0.07 ) );
+	CreateBoneShape( S_UPPER_ARM, boneTarget, btScalar( 0.05 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Wrist_R" );
-	CreateBoneShape( S_LOWER_ARM, boneTarget, btScalar( 0.05 ) );
+	CreateBoneShape( S_LOWER_ARM, boneTarget, btScalar( 0.03 ) );
 
 	boneTarget = GetBoneByName( "Skeleton_Foot_R" );
 	CreateBoneShape( S_FOOT, boneTarget, btScalar( 0.04 ) );
@@ -159,7 +161,7 @@ void Skeleton::CreateAllShapes() {
 void Skeleton::CreateBoneShape( SHAPE shapeName, Bone* target, float radius ) {
 	btScalar length( GetBoneLength( target ) );
 	shapeLengths[shapeName] = length;
-	btConvexShape* shape = new btCapsuleShape( radius, length );
+	btConvexShape* shape = new btCapsuleShape( radius, length-2.0*radius );
 	physicsWorld->AddCollisionShape( shape );
 	shapes[shapeName] = shape;
 }
@@ -278,13 +280,14 @@ btRigidBody* Skeleton::CreateBoneBody( Bone* bone, btConvexShape* shape, float m
 	btDefaultMotionState* myMotionState = new btDefaultMotionState( btTran );
 	btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, shape, localInertia );
 	btRigidBody* body = new btRigidBody( rbInfo );
-	body->setCollisionFlags( btCollisionObject::CF_NO_CONTACT_RESPONSE );
-	physicsWorld->World()->addRigidBody( body );
+	short group = COLLIDE_MASK::PLAYER_BODY;
+	short mask = COLLIDE_MASK::GROUND|COLLIDE_MASK::FIRE_PLINTH;
+	physicsWorld->World()->addRigidBody( body, group, mask );
 	return body;
 }
 
 void Skeleton::CreateAllJoints() {
-	float debugLimit = 0.01;
+	float debugLimit = XM_2PI;;
 
 	Bone* from, *to;
 	from = GetBoneByName( "Skeleton_Root" );
@@ -349,7 +352,7 @@ void Skeleton::CreateAllJoints() {
 	CreateConstraint(J_NECK_HEAD, from, to, j);
 
 	from = GetBoneByName( "Skeleton_Upper_Spine" );
-	to = GetBoneByName( "Skeleton_Clavicle_R" );
+	to = GetBoneByName( "Skeleton_Clavicle_L" );
 
 	XMMATRIX transform = to->localTransform;
 	XMMATRIX rot = XMMatrixRotationAxis( XMLoadFloat4( &XMFLOAT4( 0.f, 0.f, 1.f, 1.f ) ), XM_PIDIV2 );
@@ -363,15 +366,15 @@ void Skeleton::CreateAllJoints() {
 	j.swingLimit1 = btScalar( debugLimit );
 	j.swingLimit2 = btScalar( debugLimit );
 	j.twistLimit = btScalar( debugLimit );
-	CreateConstraint( J_CLAVICLE_R, from, to, j );
+	CreateConstraint( J_CLAVICLE_L, from, to, j );
 
 	// Note some stuff kept from abave
-	to = GetBoneByName( "Skeleton_Clavicle_L" );
+	to = GetBoneByName( "Skeleton_Clavicle_R" );
 	j.fromOffset = btVector3( btScalar( -fromOffset.r[3].m128_f32[0] ), btScalar( fromOffset.r[3].m128_f32[2]-shapeLengths[S_UPPER_SPINE]*0.5 ), btScalar( fromOffset.r[3].m128_f32[1] ) );
 	j.toOffset = btVector3( btScalar( 0. ), btScalar( -shapeLengths[S_CLAVICLE]*0.5 ), btScalar( 0. ) );
 	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( 0. ); j.aRotZ = btScalar( XM_PI );
 	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( 0. ); j.bRotZ = btScalar( XM_PIDIV2 );
-	CreateConstraint( J_CLAVICLE_L, from, to, j );
+	CreateConstraint( J_CLAVICLE_R, from, to, j );
 
 	from = GetBoneByName( "Skeleton_Clavicle_R" );
 	to = GetBoneByName( "Skeleton_Shoulder_R" );
@@ -444,7 +447,7 @@ void Skeleton::CreateAllJoints() {
 	transform = to->localTransform;
 	scale = XMMatrixScaling( 0.01f, 0.01f, 0.01f );
 	fromOffset = transform*scale;
-	j.fromOffset = btVector3( btScalar( -fromOffset.r[3].m128_f32[0] ), btScalar( fromOffset.r[3].m128_f32[1]-shapeLengths[S_HIPS]*0.5 ), btScalar( -fromOffset.r[3].m128_f32[2] ) );
+	j.fromOffset = btVector3( btScalar( fromOffset.r[3].m128_f32[0] ), btScalar( fromOffset.r[3].m128_f32[1]-shapeLengths[S_HIPS]*0.5 ), btScalar( -fromOffset.r[3].m128_f32[2] ) );
 	j.toOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_UPPER_LEG]*0.5 ), btScalar( 0. ) );
 	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( XM_PI ); j.aRotZ = btScalar( 2.8f*XM_PIDIV4 ); //The 2.8 is arbitrary.  I put it in because it looks right.
 	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( XM_PI ); j.bRotZ = btScalar( 2.8f*XM_PIDIV4 );
@@ -455,7 +458,7 @@ void Skeleton::CreateAllJoints() {
 
 	// Some values used from the leg on the other side
 	to = GetBoneByName( "Skeleton_UpperLeg_L" );
-	j.fromOffset = btVector3( btScalar( fromOffset.r[3].m128_f32[0] ), btScalar( fromOffset.r[3].m128_f32[1]-shapeLengths[S_HIPS]*0.5 ), btScalar( -fromOffset.r[3].m128_f32[2] ) );
+	j.fromOffset = btVector3( btScalar( -fromOffset.r[3].m128_f32[0] ), btScalar( fromOffset.r[3].m128_f32[1]-shapeLengths[S_HIPS]*0.5 ), btScalar( -fromOffset.r[3].m128_f32[2] ) );
 	j.toOffset = btVector3( btScalar( 0. ), btScalar( shapeLengths[S_UPPER_LEG]*0.5 ), btScalar( 0. ) );
 	j.aRotX = btScalar( 0. ); j.aRotY = btScalar( XM_PI ); j.aRotZ = btScalar( XM_PI-2.8f*XM_PIDIV4 ); //The 2.8 is arbitrary.  I put it in because it looks right.
 	j.bRotX = btScalar( 0. ); j.bRotY = btScalar( XM_PI ); j.bRotZ = btScalar( XM_PI-2.8f*XM_PIDIV4 );
@@ -463,7 +466,6 @@ void Skeleton::CreateAllJoints() {
 	j.swingLimit2 = btScalar( debugLimit );
 	j.twistLimit = btScalar( debugLimit );
 	CreateConstraint( J_HIP_L, from, to, j );
-
 
 	from = GetBoneByName( "Skeleton_UpperLeg_L" );
 	to = GetBoneByName( "Skeleton_LowerLeg_L" );
@@ -520,24 +522,6 @@ void Skeleton::CreateAllJoints() {
 	j.twistLimit = btScalar( debugLimit );
 	CreateConstraint( J_CLUB, from, to, j );
 }
-
-/*
-void Skeleton::CreateConstraint( JOINT joint, Bone* from, Bone* to, btVector3 fromOffset, btVector3 toOffset, btScalar aRotX, btScalar aRotY, btScalar aRotZ, btScalar bRotX, btScalar bRotY, btScalar bRotZ, btScalar swingLimit1, btScalar swingLimit2, btScalar twistLimit ) {
-
-
-btTransform localA, localB;
-localA.setIdentity(); localB.setIdentity();
-localA.getBasis().setEulerZYX( aRotX, aRotY, aRotZ );
-localA.setOrigin( fromOffset );
-localB.getBasis().setEulerZYX( bRotX, bRotY, bRotZ );
-localB.setOrigin( toOffset );
-btConeTwistConstraint* c = new btConeTwistConstraint( *(from->body), *(to->body), localA, localB );
-c->setLimit( swingLimit1, swingLimit2, twistLimit );
-joints[joint] = c;
-c->setDbgDrawSize( 1. );
-
-physicsWorld->World()->addConstraint( joints[joint], true );
-}*/
 
 void Skeleton::CreateConstraint( JOINT joint, Bone* from, Bone* to, const JointInfo &j ) {
 

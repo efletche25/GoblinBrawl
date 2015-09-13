@@ -86,7 +86,8 @@ void PhysicsWorld::SetupDemo() {
 			btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
 			btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, colShape, localInertia );
 			btRigidBody* body = new btRigidBody( rbInfo );
-
+			short group = COLLIDE_MASK::FIRE_PLINTH;
+			short mask = COLLIDE_MASK::PLAYER_CONTROLLER|COLLIDE_MASK::PLAYER_BODY|COLLIDE_MASK::GROUND;
 			dynamicsWorld->addRigidBody( body );
 		}
 	}
