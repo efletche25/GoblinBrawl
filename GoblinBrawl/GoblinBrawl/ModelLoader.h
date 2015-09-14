@@ -10,6 +10,7 @@
 
 class Mesh;
 class Skeleton;
+struct Anim;
 
 class ModelLoader {
 public:
@@ -19,12 +20,14 @@ public:
 	Mesh* GetMesh();
 	void GetMeshExtents( float &outMinX, float &outMaxX, float &outMinY, float &outMaxY, float &outMinZ, float &outMaxZ );
 	Skeleton* GetSkeleton();
+	std::vector<Anim*> GetAnimations();
 	std::vector<PointLight> GetPointLights();
 private:
 	void CreateIndexBuffer( const aiFace* indices, UINT count );
 	void CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type );
 	void ModelLoader::CreateSkeleton( aiBone** bones, int numBones );
 	void CreateBoneHierarchy();
+	void CreateAnimations();
 	DirectX::XMMATRIX XM_CALLCONV ConvertMatrix( aiMatrix4x4 inMat );
 	void FindBoneChildren( aiNode* node, int parentIdx );
 	inline void UpdateExtents( float x, float y, float z );
@@ -43,6 +46,7 @@ private:
 	float					maxX;
 	float					maxY;
 	float					maxZ;
+	std::vector<Anim*>		anims;
 
 	template <typename VertexType>
 	void SetVertices( ID3D11Device* device, UINT count, const VertexType* vertices ) {

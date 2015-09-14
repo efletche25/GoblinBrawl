@@ -4,6 +4,7 @@
 #include "Keyboard.h"
 #include "GamePad.h"
 #include "FSM.h"
+#include "AnimationController.h"
 
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
@@ -114,6 +115,7 @@ private:
 	btPairCachingGhostObject*		ghostObject;
 	FSM<Goblin>*					fsm;
 	float							movementBearing;
+	AnimationController				animController;
 
 	//Player movement
 	float							forwardAmount;
@@ -128,5 +130,6 @@ private:
 	const float						forwardAngle = XM_PIDIV4/2.f;
 	const float						backwardAngle = XM_PI-XM_PIDIV4/2.f;
 	float							jumpTimer;
-};
+	float							attackTimer;
+ };
 

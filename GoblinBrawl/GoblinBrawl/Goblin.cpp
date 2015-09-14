@@ -34,7 +34,7 @@ Goblin::~Goblin() {
 
 bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::KeyboardStateTracker* kb, GamePad* gamePad, PLAYER player, PhysicsWorld* physicsWorld ) {
 	// Model
-	modelLoader->Load( "Goblin3.fbx", Vertex::CHARACTER_SKINNED );
+	modelLoader->Load( "Goblin4.fbx", Vertex::CHARACTER_SKINNED );
 	mesh = modelLoader->GetMesh();
 	if( mesh->VB()==nullptr ) {
 		return false;
@@ -100,6 +100,14 @@ bool Goblin::Init( ModelLoader* modelLoader, ID3D11Device* device, Keyboard::Key
 	skeleton->SetRootTransform(goblinTransform );
 	skeleton->InitPhysics( physicsWorld );
 
+	// Animations
+	animController.SetSkeleton( skeleton );
+	std::vector<Anim*> anims = modelLoader->GetAnimations();
+	for( Anim* anim : anims ) {
+		animController.AddAnim( anim );
+	}
+	skeleton->SetAnimationController( &animController );
+
 	// Finite State Machine
 	InitFSM();
 
@@ -144,6 +152,7 @@ void Goblin::Update( float dt ) {
 	UpdateActions();
 	DebugActionDisplay();
 	fsm->Update( dt );
+	animController.Interpolate( dt );
 	UpdateModelTransforms();
 }
 
@@ -390,6 +399,7 @@ void Goblin::UpdateWalkDirection() {
 	}
 	if( movementBearing!=movementBearing ) { // check for undefined
 		fsm->ChangeState( IDLE );
+		return;
 	}
 	fprintf( stdout, "Bearing:%f\n", movementBearing );
 	if( movementBearing>backwardAngle ) {
@@ -407,6 +417,7 @@ void Goblin::UpdateWalkDirection() {
 
 void Goblin::Idle_Before( float dt ) {
 	fprintf( stdout, "Idle_Before\n" );
+	animController.ChangeAnim( ANIM_IDLE );
 }
 
 void Goblin::Idle_Update( float dt ) {
@@ -420,6 +431,9 @@ void Goblin::Idle_Update( float dt ) {
 	} else {
 		UpdateWalkDirection();
 	}
+	if( action.Attack ) {
+		fsm->ChangeState( ATTACK );
+	}
 }
 
 void Goblin::Idle_After( float dt ) {
@@ -428,6 +442,7 @@ void Goblin::Idle_After( float dt ) {
 
 void Goblin::Forward_Before( float dt ) {
 	fprintf( stdout, "Forward_Before\n" );
+	animController.ChangeAnim( ANIM_WALK );
 }
 
 void Goblin::Forward_Update( float dt ) {
@@ -440,6 +455,9 @@ void Goblin::Forward_Update( float dt ) {
 		}
 	} else {
 		UpdateWalkDirection();
+	}
+	if( action.Attack ) {
+		fsm->ChangeState( ATTACK );
 	}
 }
 
@@ -462,6 +480,9 @@ void Goblin::Turn_Right_Update( float dt ) {
 	} else {
 		UpdateWalkDirection();
 	}
+	if( action.Attack ) {
+		fsm->ChangeState( ATTACK );
+	}
 }
 
 void Goblin::Turn_Right_After( float dt ) {
@@ -483,6 +504,9 @@ void Goblin::Turn_Left_Update( float dt ) {
 	} else {
 		UpdateWalkDirection();
 	}
+	if( action.Attack ) {
+		fsm->ChangeState( ATTACK );
+	}
 }
 
 void Goblin::Turn_Left_After( float dt ) {
@@ -503,6 +527,9 @@ void Goblin::Backward_Update( float dt ) {
 		}
 	} else {
 		UpdateWalkDirection();
+	}
+	if( action.Attack ) {
+		fsm->ChangeState( ATTACK );
 	}
 }
 
@@ -565,10 +592,16 @@ void Goblin::Duck_After( float dt ) {
 
 void Goblin::Attack_Before( float dt ) {
 	fprintf( stdout, "Attack_Before\n" );
+	attackTimer = animController.GetAnimTime( ANIM_ATTACK );
+	animController.ChangeAnim( ANIM_ATTACK );
 }
 
 void Goblin::Attack_Update( float dt ) {
 	fprintf( stdout, "Attack_Update\n" );
+	attackTimer -= dt;
+	if( attackTimer<0 ) {
+		fsm->ChangeState( IDLE );
+	}
 }
 
 void Goblin::Attack_After( float dt ) {

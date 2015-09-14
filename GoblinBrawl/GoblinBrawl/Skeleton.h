@@ -13,6 +13,7 @@ class btConvexShape;
 class btTypedConstraint;
 class btCollisionShape;
 class btTransform;
+class AnimationController;
 
 using namespace DirectX;
 
@@ -125,7 +126,9 @@ public:
 	void XM_CALLCONV SetRootTransform( FXMMATRIX transform );
 	void CreateDemoRagDoll();
 	btRigidBody* localCreateRigidBody( float mass, const btTransform& startTransform, btCollisionShape* shape );
+	void SetAnimationController( AnimationController* animationController );
 private:
+	void UpdateLocalTransforms();
 	void UpdateTransforms( Bone* bone );
 	void CreateAllShapes();
 	void CreateAllBodies();
@@ -146,4 +149,5 @@ private:
 	btScalar							shapeLengths[SHAPE_COUNT];
 	btRigidBody*						bodies[BODY_COUNT];
 	btTypedConstraint*					joints[JOINT_COUNT];
+	AnimationController*				animationController;
 };

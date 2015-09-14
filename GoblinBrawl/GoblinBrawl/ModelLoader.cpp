@@ -6,6 +6,7 @@
 #include "assimp/DefaultLogger.hpp"
 #include "Mesh.h"
 #include "Skeleton.h"
+#include "AnimationController.h"
 
 ModelLoader::ModelLoader( ID3D11Device* device, std::string modelDir, std::string textureDir ) :
 device( device ),
@@ -52,6 +53,7 @@ bool ModelLoader::Load( std::string filename, Vertex::VERTEX_TYPE type ) {
 	if( scene->HasAnimations() ) {
 		CreateSkeleton( sceneMesh->mBones, sceneMesh->mNumBones );
 		CreateBoneHierarchy();
+		CreateAnimations();
 	}
 	return true;
 }
@@ -143,7 +145,7 @@ void ModelLoader::CreateVertexBuffer( aiMesh* mesh, Vertex::VERTEX_TYPE type ) {
 		for( UINT i = 0; i<count; ++i ) {
 			UpdateExtents( vertices[i].x, vertices[i].y, -vertices[i].z );
 			vertData[i].Pos = XMFLOAT3( vertices[i].x, vertices[i].y, -vertices[i].z );
-			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, normals[i].z );
+			vertData[i].Normal = XMFLOAT3( normals[i].x, normals[i].y, -normals[i].z );
 			vertData[i].Tex = XMFLOAT2( texCoords[i].x, texCoords[i].y );
 
 			BYTE boneIndices[4] = { 0, 0, 0, 0 };
@@ -254,5 +256,47 @@ inline void ModelLoader::UpdateExtents( float x, float y, float z ) {
 		minZ = z;
 	} else if( z>maxZ ) {
 		maxZ = z;
+	}
+}
+
+std::vector<Anim*> ModelLoader::GetAnimations() {
+	return anims;
+}
+
+void ModelLoader::CreateAnimations() {
+	for( int i = 0; i<scene->mNumAnimations; ++i ) {
+		aiAnimation* aiAnim = scene->mAnimations[i];
+		Anim* anim = new Anim();
+		anim->name = aiAnim->mName.C_Str();
+		float framesPerSec = (float)aiAnim->mTicksPerSecond;
+		anim->totalTime = (float)(aiAnim->mDuration/aiAnim->mTicksPerSecond);
+		float timePerFrame = 1/framesPerSec;
+		for( int j = 0; j<aiAnim->mNumChannels; ++j ) {
+			aiNodeAnim* aiNodeAnim = aiAnim->mChannels[j];
+			Bone* bone = skeleton->GetBoneByName( aiNodeAnim->mNodeName.C_Str() );
+			anim->boneSet.insert( bone );
+
+			keySet_t rotKeySet;
+			for( int k = 0; k<aiNodeAnim->mNumRotationKeys; ++k ) {
+				aiQuatKey quatKey = aiNodeAnim->mRotationKeys[k];
+				rotKeySet[(float)quatKey.mTime * timePerFrame] = XMFLOAT4( quatKey.mValue.x, quatKey.mValue.y, quatKey.mValue.z, quatKey.mValue.w );
+			}
+			anim->rotChannels[bone] = rotKeySet;
+
+			keySet_t posKeySet;
+			for( int m = 0; m<aiNodeAnim->mNumPositionKeys; ++m ) {
+				aiVectorKey posKey = aiNodeAnim->mPositionKeys[m];
+				posKeySet[(float)posKey.mTime * timePerFrame] = XMFLOAT4( posKey.mValue.x, posKey.mValue.y, posKey.mValue.z, 0.0f );
+			}
+			anim->posChannels[bone] = posKeySet;
+
+			keySet_t scaleKeySet;
+			for( int n = 0; n<aiNodeAnim->mNumScalingKeys; ++n ) {
+				aiVectorKey scaleKey = aiNodeAnim->mScalingKeys[n];
+				scaleKeySet[(float)scaleKey.mTime* timePerFrame] = XMFLOAT4( scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z, 0.0f );
+			}
+			anim->scaleChannels[bone] = scaleKeySet;
+		}
+		anims.push_back( anim );
 	}
 }

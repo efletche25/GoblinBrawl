@@ -348,7 +348,7 @@ int Game::Run() {
 		}
 		// Otherwise, do animation/game stuff.
 		else {
-			Sleep( 10 ); //FIXME - this is a terrible hack because the framerate is so high it breaks physics remove it
+			//Sleep( 10 ); //FIXME - this is a terrible hack because the framerate is so high it breaks physics remove it
 			timer.Tick();
 			if( !paused ) {
 #ifdef DISPLAY_FPS
@@ -454,7 +454,7 @@ void Game::Update( float dt ) {
 
 	physicsWorld->Update( dt );
 	physicsWorld->RunDemo();
-	//XMVECTOR camPos = XMVectorSet( 20.f, 0.f, 0.1f, 1.f ); //XMFLOAT3( -11.4568f, 4.9013f, 17.961f );
+	//XMVECTOR camPos = XMVectorSet( 200.f, 0.f, 0.1f, 1.f ); //XMFLOAT3( -11.4568f, 4.9013f, 17.961f );
 	//XMVECTOR targetPos = XMVectorSet( 1.f, 0.f, 0.f, 1.0f );
 	//camera.Update( camPos, targetPos );
 	camera.UpdateFollow(  goblin.GetWorld() );
@@ -466,7 +466,7 @@ void Game::Draw() {
 	d3DImmediateContext->ClearRenderTargetView( renderTargetView, clearColor );
 	d3DImmediateContext->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
-	//floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
+	floor.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	walls.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );
 	lava.Draw( viewProj, d3DImmediateContext );
 	firePlinth.Draw( viewProj, camera.GetPos(), lighting.GetPointLights(), d3DImmediateContext );

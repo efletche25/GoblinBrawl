@@ -91,6 +91,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationController.h" />
     <ClInclude Include="Bullet\btBulletCollisionCommon.h" />
     <ClInclude Include="Bullet\btBulletDynamicsCommon.h" />
     <ClInclude Include="Bullet\Bullet3Common\b3AlignedAllocator.h" />
@@ -369,6 +370,7 @@ xcopy /y $(ProjectDir)fx\*.fxo $(TargetDir)fx</Command>
     <ClInclude Include="Walls.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationController.cpp" />
     <ClCompile Include="Bullet\Bullet3Common\b3AlignedAllocator.cpp" />
     <ClCompile Include="Bullet\Bullet3Common\b3Logging.cpp" />
     <ClCompile Include="Bullet\Bullet3Common\b3Vector3.cpp" />

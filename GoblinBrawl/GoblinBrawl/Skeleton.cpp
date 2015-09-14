@@ -3,6 +3,7 @@
 #include <vector>
 #include "PhysicsWorld.h"
 #include "MathUtils.h"
+#include "AnimationController.h"
 
 using namespace DirectX;
 
@@ -12,6 +13,10 @@ Skeleton::~Skeleton() {
 	for( auto it = idxBones.begin(); it!=idxBones.end(); ++it ) {
 		delete it->second;
 	}
+}
+
+void Skeleton::SetAnimationController( AnimationController* animationController ) {
+	this->animationController = animationController;
 }
 
 void Skeleton::AddBone( Bone* newBone ) {
@@ -58,8 +63,10 @@ void XM_CALLCONV Skeleton::UpdateTransformByIndex( FXMVECTOR translate, FXMVECTO
 		);
 }
 
+
 DirectX::XMFLOAT4X4* Skeleton::GetFinalTransforms() {
 	toRoot.resize( numBones );
+	UpdateLocalTransforms();
 	Bone* root = GetBoneByName( "Skeleton_Root" );
 	UpdateTransforms( root );
 	return finalTransformData;
@@ -83,6 +90,20 @@ void Skeleton::UpdateTransforms( Bone* bone ) {
 	if( bone->children.size()==0 ) { return; }
 	for( Bone* childBone:bone->children ) {
 		UpdateTransforms( childBone );
+	}
+}
+
+void Skeleton::UpdateLocalTransforms() {
+	//FIXME
+	//return;
+	for( auto it:nameBones ) {
+		Bone* bone = it.second;
+		XMMATRIX currentTransform = bone->localTransform;
+		XMMATRIX newBoneTransform = XMLoadFloat4x4( &animationController->GetBoneTransform( bone ) );
+		if( XMMatrixIsIdentity( newBoneTransform ) ) {
+			return; //This means there is no animation channel for this bone
+		}
+		bone->localTransform = newBoneTransform;
 	}
 }
 
@@ -287,7 +308,7 @@ btRigidBody* Skeleton::CreateBoneBody( Bone* bone, btConvexShape* shape, float m
 }
 
 void Skeleton::CreateAllJoints() {
-	float debugLimit = XM_2PI;;
+	float debugLimit = 0.01;// XM_2PI;;
 
 	Bone* from, *to;
 	from = GetBoneByName( "Skeleton_Root" );
