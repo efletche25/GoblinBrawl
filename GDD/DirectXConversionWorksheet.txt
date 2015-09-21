@@ -1,6 +1,0 @@
-DXSDK_DIR
-C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\
-
-Deleted for additional lib
-$(DXSDK_DIR)Lib\x86\
-
