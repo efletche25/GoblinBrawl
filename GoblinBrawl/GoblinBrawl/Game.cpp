@@ -9,6 +9,9 @@
 #include "MyEffects.h"
 #include "Vertex.h"
 #include "PhysicsWorld.h"
+#include <random>
+
+
 
 #define DISPLAY_FPS
 
@@ -56,6 +59,9 @@ Game::~Game() {
 	delete kbTracker.release();
 	delete keyboard.release();
 	delete gamePad.release();
+	if( m_audEngine ) {
+		m_audEngine->Suspend();
+	}
 }
 
 bool Game::Init() {
@@ -73,6 +79,22 @@ bool Game::Init() {
 	keyboard = std::unique_ptr<Keyboard>( new Keyboard );
 	kbTracker = std::unique_ptr<Keyboard::KeyboardStateTracker>( new Keyboard::KeyboardStateTracker );
 	gamePad = std::unique_ptr<GamePad>( new GamePad );
+
+	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+#ifdef _DEBUG
+	eflags = eflags|AudioEngine_Debug;
+#endif
+	m_audEngine.reset( new AudioEngine( eflags ) );
+	m_retryAudio = false;
+	
+	m_explode.reset( new SoundEffect( m_audEngine.get(), L"explo1.wav" ) );
+	m_ambient.reset( new SoundEffect( m_audEngine.get(), L"NightAmbienceSimple_02.wav" ) );
+	std::random_device rd;
+	m_random.reset( new std::mt19937( rd() ) );
+
+	explodeDelay = 2.f;
+	
+
 	if( !LoadGameObjects() ) {
 		return false;
 	}
@@ -458,6 +480,11 @@ void Game::Update( float dt ) {
 	XMVECTOR targetPos = XMVectorSet( 0.f, 1.f, 0.f, 1.0f );
 	camera.Update( camPos, targetPos );
 	//camera.UpdateFollow(  goblin.GetWorld() );
+	PlaySound();
+
+
+	
+	
 }
 
 void Game::Draw() {
@@ -476,3 +503,37 @@ void Game::Draw() {
 #endif
 	swapChain->Present( 0, 0 );
 }
+
+
+void Game::PlaySound() {
+
+	static float timeElapsed = 0.0f;
+
+	//put this somewhere..
+	if( !m_audEngine->Update() ) {
+		// more about this below...
+		//explodeDelay -= timeElapsed;
+		//if( explodeDelay<0.f ) {
+			
+
+			std::uniform_real_distribution<float> dist( 1.f, 10.f );
+			explodeDelay = dist( *m_random );
+		//}
+	}
+	m_ambient->Play();
+
+	m_audEngine->Suspend();
+	m_audEngine->Resume();
+
+	if( m_retryAudio ) {
+		m_retryAudio = false;
+		if( m_audEngine->Reset() ) {
+			// TODO: restart any looped sounds here
+		}
+	} else if( !m_audEngine->Update() ) {
+		if( m_audEngine->IsCriticalError() ) {
+			m_retryAudio = true;
+		}
+	}
+}
+

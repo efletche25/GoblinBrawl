@@ -12,6 +12,8 @@
 #include "Lighting.h"
 #include "Keyboard.h"
 #include "GamePad.h"
+#include "Audio.h"
+#include <random>
 
 class PhysicsWorld;
 
@@ -23,6 +25,7 @@ public:
 	~Game();
 	bool Init();
 	void OnResize();
+	void PlaySound();
 	LRESULT MsgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam );
 	int Run();
 private:
@@ -65,5 +68,12 @@ private:
 	std::unique_ptr<
 		Keyboard::KeyboardStateTracker>	kbTracker;
 	std::unique_ptr<GamePad>			gamePad;
+	std::unique_ptr<DirectX::AudioEngine> m_audEngine;
+	bool m_retryAudio;
+	std::unique_ptr<DirectX::SoundEffect> m_explode;
+	std::unique_ptr<DirectX::SoundEffect> m_ambient;
+	std::unique_ptr<std::mt19937> m_random;
+	float explodeDelay;
+
 };
 

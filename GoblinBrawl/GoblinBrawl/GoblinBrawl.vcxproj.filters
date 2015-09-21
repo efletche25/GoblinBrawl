@@ -1376,4 +1376,21 @@
       <Filter>DirectXTK</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="Sound\Explo1.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Sound\Explo2.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Sound\Explo3.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Sound\Explo4.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Sound\NightAmbienceSimple_02.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
 </Project>
